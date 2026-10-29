@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "FocusFlow: To-Do List, Kanban View & Task Management",
+  "version": "1.0.0",
+  "author": "Aakash Ramani",
+  "description": "To-do list & Kanban view on your home page. Task management with bulk task add, single task add, priority tracking, and search.",
+  "chrome_url_overrides": {
+    "newtab": "index.html"
+  },
+  "permissions": [
+    "storage"
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_title": "FocusFlow To-Do List & Kanban Board",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png"
+    }
+  }
+}

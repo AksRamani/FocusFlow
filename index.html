@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Tab | FocusFlow Kanban</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="dark-theme">
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand-section">
+        <img src="icons/icon48.png" alt="FocusFlow" class="brand-icon">
+        <div class="brand-text">
+          <h1 class="app-title">FocusFlow</h1>
+          <span id="currentDate" class="date-display"></span>
+        </div>
+      </div>
+
+      <div class="center-metrics">
+        <div class="clock-display" id="currentTime">00:00</div>
+        <div class="progress-container" title="Overall Completion">
+          <div class="progress-bar-bg">
+            <div id="progressBar" class="progress-bar-fill" style="width: 0%"></div>
+          </div>
+          <span id="progressText" class="progress-text">0/0 done (0%)</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <div class="search-box">
+          <svg class="icon search-icon" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+          </svg>
+          <input type="text" id="searchInput" placeholder="Search tasks..." aria-label="Search tasks">
+          <button id="clearSearchBtn" class="clear-search hidden" title="Clear search">&times;</button>
+        </div>
+
+        <button id="openBulkAddBtn" class="btn btn-secondary" title="Paste multiple tasks at once (Shortcut: B)">
+          <svg class="icon" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h7a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/>
+          </svg>
+          Bulk Add
+        </button>
+
+        <button id="openAddTaskBtn" class="btn btn-primary" title="Add a single task (Shortcut: N)">
+          <svg class="icon" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+          </svg>
+          New Task
+        </button>
+      </div>
+    </header>
+
+    <!-- Navigation / View Tabs -->
+    <nav class="view-tabs-bar">
+      <div class="tabs-group" role="tablist">
+        <button class="tab-btn active" data-view="board" role="tab" aria-selected="true">
+          <svg class="tab-icon" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M3 4a1 1 0 011-1h3a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm6 0a1 1 0 011-1h3a1 1 0 011 1v12a1 1 0 01-1 1h-3a1 1 0 01-1-1V4zm6 0a1 1 0 011-1h1a1 1 0 011 1v12a1 1 0 01-1 1h-1a1 1 0 01-1-1V4z"/>
+          </svg>
+          Kanban Board
+        </button>
+        <span class="tab-divider"></span>
+        <button class="tab-btn" data-view="todo" role="tab" aria-selected="false">
+          <span class="status-dot dot-todo"></span>
+          To Do <span class="badge" id="tabCountTodo">0</span>
+        </button>
+        <button class="tab-btn" data-view="in-progress" role="tab" aria-selected="false">
+          <span class="status-dot dot-progress"></span>
+          In Progress <span class="badge" id="tabCountInProgress">0</span>
+        </button>
+        <button class="tab-btn" data-view="done" role="tab" aria-selected="false">
+          <span class="status-dot dot-done"></span>
+          Done <span class="badge" id="tabCountDone">0</span>
+        </button>
+      </div>
+
+      <div class="view-filters">
+        <label for="priorityFilter" class="filter-label">Priority:</label>
+        <select id="priorityFilter" class="select-control">
+          <option value="all">All Priorities</option>
+          <option value="urgent">Urgent</option>
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+        </select>
+
+        <button id="clearCompletedBtn" class="btn btn-ghost" title="Clear all tasks marked done">
+          Clear Completed
+        </button>
+      </div>
+    </nav>
+
+    <!-- Main Kanban Board Container -->
+    <main class="board-container" id="boardContainer">
+      <!-- To Do Column -->
+      <section class="kanban-column" id="column-todo" data-status="todo">
+        <div class="column-header">
+          <div class="col-title-group">
+            <span class="column-indicator indicator-todo"></span>
+            <h2 class="column-title">To Do</h2>
+            <span class="column-badge" id="badge-todo">0</span>
+          </div>
+          <button class="quick-add-btn" data-status="todo" title="Add to To-Do">+</button>
+        </div>
+        <div class="card-list" id="list-todo" data-status="todo">
+          <!-- Cards injected here -->
+        </div>
+        <div class="column-footer">
+          <button class="add-inline-btn" data-status="todo">+ Add task</button>
+        </div>
+      </section>
+
+      <!-- In Progress Column -->
+      <section class="kanban-column" id="column-in-progress" data-status="in-progress">
+        <div class="column-header">
+          <div class="col-title-group">
+            <span class="column-indicator indicator-progress"></span>
+            <h2 class="column-title">In Progress</h2>
+            <span class="column-badge" id="badge-in-progress">0</span>
+          </div>
+          <button class="quick-add-btn" data-status="in-progress" title="Add to In Progress">+</button>
+        </div>
+        <div class="card-list" id="list-in-progress" data-status="in-progress">
+          <!-- Cards injected here -->
+        </div>
+        <div class="column-footer">
+          <button class="add-inline-btn" data-status="in-progress">+ Add task</button>
+        </div>
+      </section>
+
+      <!-- Done Column -->
+      <section class="kanban-column" id="column-done" data-status="done">
+        <div class="column-header">
+          <div class="col-title-group">
+            <span class="column-indicator indicator-done"></span>
+            <h2 class="column-title">Done</h2>
+            <span class="column-badge" id="badge-done">0</span>
+          </div>
+          <button class="quick-add-btn" data-status="done" title="Add to Done">+</button>
+        </div>
+        <div class="card-list" id="list-done" data-status="done">
+          <!-- Cards injected here -->
+        </div>
+        <div class="column-footer">
+          <button class="add-inline-btn" data-status="done">+ Add task</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Bulk Add Modal -->
+  <div class="modal-overlay hidden" id="bulkAddModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <h3>Paste Multiple Tasks</h3>
+          <p class="modal-subtext">Add several tasks at once by pasting your list below (one task per line).</p>
+        </div>
+        <button class="modal-close-btn" id="closeBulkAddBtn">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-group flex-1">
+            <label for="bulkTargetColumn">Add to Column</label>
+            <select id="bulkTargetColumn" class="input-control">
+              <option value="todo">To Do</option>
+              <option value="in-progress">In Progress</option>
+              <option value="done">Done</option>
+            </select>
+          </div>
+          <div class="form-group flex-1">
+            <label for="bulkDefaultPriority">Default Priority</label>
+            <select id="bulkDefaultPriority" class="input-control">
+              <option value="medium">Medium</option>
+              <option value="urgent">Urgent</option>
+              <option value="high">High</option>
+              <option value="low">Low</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="textarea-header">
+            <label for="bulkTasksInput">Paste Tasks Text</label>
+            <span id="bulkTaskCount" class="counter-text">0 tasks detected</span>
+          </div>
+          <textarea 
+            id="bulkTasksInput" 
+            class="textarea-control bulk-textarea" 
+            rows="5" 
+            placeholder="Review pull request #42&#10;Fix authentication timeout [urgent]&#10;Update team documentation !&#10;Design new onboarding screen [high]&#10;Run database backup"
+          ></textarea>
+        </div>
+
+        <div class="hint-box">
+          <svg class="hint-icon" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+          </svg>
+          <div class="hint-text">
+            <strong>Smart detection:</strong> Leading bullets (<code>-</code>, <code>*</code>, <code>1.</code>) are stripped automatically. You can write <code>[urgent]</code>, <code>[high]</code>, <code>[medium]</code>, <code>[low]</code> or <code>!</code>, <code>!!</code>, <code>!!!</code> anywhere in a line to set custom priorities!
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="cancelBulkAddBtn">Cancel</button>
+        <button class="btn btn-primary" id="submitBulkAddBtn">Import Tasks</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Single Task Modal (Create / Edit) -->
+  <div class="modal-overlay hidden" id="taskModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="taskModalTitle">Add Task</h3>
+        <button class="modal-close-btn" id="closeTaskModalBtn">&times;</button>
+      </div>
+
+      <form id="taskForm" class="modal-body">
+        <input type="hidden" id="taskIdInput">
+        
+        <div class="form-group">
+          <label for="taskTitleInput">Task Description *</label>
+          <input 
+            type="text" 
+            id="taskTitleInput" 
+            class="input-control" 
+            placeholder="What needs to be done?" 
+            required 
+            maxlength="250"
+          >
+        </div>
+
+        <div class="form-row">
+          <div class="form-group flex-1">
+            <label for="taskColumnSelect">Status / Column</label>
+            <select id="taskColumnSelect" class="input-control">
+              <option value="todo">To Do</option>
+              <option value="in-progress">In Progress</option>
+              <option value="done">Done</option>
+            </select>
+          </div>
+
+          <div class="form-group flex-1">
+            <label for="taskPrioritySelect">Priority</label>
+            <select id="taskPrioritySelect" class="input-control">
+              <option value="urgent">Urgent</option>
+              <option value="high">High</option>
+              <option value="medium" selected>Medium</option>
+              <option value="low">Low</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="taskNotesInput">Notes / Details (Optional)</label>
+          <textarea id="taskNotesInput" class="textarea-control" rows="3" placeholder="Additional context, links, or sub-points..."></textarea>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" id="cancelTaskModalBtn">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="saveTaskBtn">Save Task</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
+
