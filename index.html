@@ -37,6 +37,14 @@
           <button id="clearSearchBtn" class="clear-search hidden" title="Clear search">&times;</button>
         </div>
 
+        <button id="openReportBtn" class="btn btn-secondary" title="Generate end-of-day report (Shortcut: R)">
+          <svg class="icon" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+            <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd" />
+          </svg>
+          Daily Report
+        </button>
+
         <button id="openBulkAddBtn" class="btn btn-secondary" title="Paste multiple tasks at once (Shortcut: B)">
           <svg class="icon" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h7a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/>
@@ -139,7 +147,15 @@
             <h2 class="column-title">Done</h2>
             <span class="column-badge" id="badge-done">0</span>
           </div>
-          <button class="quick-add-btn" data-status="done" title="Add to Done">+</button>
+          <div class="col-header-actions">
+            <button class="clear-col-btn" id="clearDoneColBtn" title="Clear all tasks in Done column">
+              <svg class="icon-trash" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+              </svg>
+              <span>Clear</span>
+            </button>
+            <button class="quick-add-btn" data-status="done" title="Add to Done">+</button>
+          </div>
         </div>
         <div class="card-list" id="list-done" data-status="done">
           <!-- Cards injected here -->
@@ -257,6 +273,16 @@
           </div>
         </div>
 
+        <div class="form-group" id="taskPrLinkGroup">
+          <label for="taskPrLinkInput">PR Link (Optional, e.g. for Done tasks)</label>
+          <input 
+            type="text" 
+            id="taskPrLinkInput" 
+            class="input-control" 
+            placeholder="https://github.com/org/repo/pull/42"
+          >
+        </div>
+
         <div class="form-group">
           <label for="taskNotesInput">Notes / Details (Optional)</label>
           <textarea id="taskNotesInput" class="textarea-control" rows="3" placeholder="Additional context, links, or sub-points..."></textarea>
@@ -267,6 +293,78 @@
           <button type="submit" class="btn btn-primary" id="saveTaskBtn">Save Task</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- Daily Report Modal -->
+  <div class="modal-overlay hidden" id="reportModal">
+    <div class="modal-card report-modal-card">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <h3>Daily Status Report</h3>
+          <p class="modal-subtext" id="reportDateSubtitle">End-of-day summary of all tasks status-wise</p>
+        </div>
+        <button class="modal-close-btn" id="closeReportModalBtn" title="Close report">&times;</button>
+      </div>
+
+      <div class="modal-body report-modal-body">
+        <!-- Report Generating Loading State -->
+        <div class="report-loading-container hidden" id="reportLoadingContainer">
+          <div class="generating-spinner"></div>
+          <div class="generating-text-group">
+            <h4 class="generating-title">Report is generating...</h4>
+            <p class="generating-subtitle">Aggregating tasks status-wise and organizing PR links</p>
+          </div>
+        </div>
+
+        <!-- Main Report Content Wrapper -->
+        <div class="report-content-wrapper" id="reportContentWrapper">
+          <!-- Summary Stats Pills -->
+          <div class="report-stats-bar" id="reportStatsBar"></div>
+
+          <!-- Mode switcher: Formatted vs Markdown -->
+          <div class="report-tabs-wrapper">
+            <div class="report-view-toggle">
+              <button type="button" class="report-toggle-btn active" id="reportToggleFormatted" data-mode="formatted">
+                Formatted View
+              </button>
+              <button type="button" class="report-toggle-btn" id="reportToggleMarkdown" data-mode="markdown">
+                Markdown / Raw
+              </button>
+            </div>
+          </div>
+
+          <!-- Formatted Report View -->
+          <div class="report-content-formatted" id="reportFormattedContainer">
+            <!-- Dynamic sections -->
+          </div>
+
+          <!-- Markdown / Raw Text View -->
+          <div class="report-content-markdown hidden" id="reportMarkdownContainer">
+            <textarea id="reportMarkdownText" class="textarea-control report-markdown-textarea" readonly rows="12"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <div class="report-footer-left">
+          <span id="copyToast" class="copy-toast hidden">✓ Copied to clipboard!</span>
+        </div>
+        <button type="button" class="btn btn-ghost" id="closeReportBtn">Close</button>
+        <button type="button" class="btn btn-secondary" id="downloadReportBtn" title="Download report as markdown (.md) file">
+          <svg class="icon" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/>
+          </svg>
+          Download .md
+        </button>
+        <button type="button" class="btn btn-primary" id="copyReportBtn" title="Copy markdown report to clipboard">
+          <svg class="icon" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+            <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
+          </svg>
+          Copy Report
+        </button>
+      </div>
     </div>
   </div>
 

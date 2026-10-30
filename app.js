@@ -37,10 +37,11 @@
     },
     {
       id: 'demo-3',
-      title: 'Click the priority badge to cycle: Urgent → High → Medium → Low',
-      notes: 'Try clicking the badge directly on this card.',
+      title: 'Easily select priority from the dropdown: Urgent, High, Medium, Low',
+      notes: 'Try selecting a priority from the dropdown directly on this card.',
       status: 'done',
       priority: 'medium',
+      prLink: 'https://github.com/facebook/react/pull/42',
       createdAt: Date.now() - 7200000,
       order: 0
     }
@@ -66,6 +67,7 @@
     clearSearchBtn: document.getElementById('clearSearchBtn'),
     priorityFilter: document.getElementById('priorityFilter'),
     clearCompletedBtn: document.getElementById('clearCompletedBtn'),
+    clearDoneColBtn: document.getElementById('clearDoneColBtn'),
     boardContainer: document.getElementById('boardContainer'),
     viewTabBtns: document.querySelectorAll('.tab-btn'),
     // Modals
@@ -89,7 +91,26 @@
     taskTitleInput: document.getElementById('taskTitleInput'),
     taskColumnSelect: document.getElementById('taskColumnSelect'),
     taskPrioritySelect: document.getElementById('taskPrioritySelect'),
-    taskNotesInput: document.getElementById('taskNotesInput')
+    taskPrLinkInput: document.getElementById('taskPrLinkInput'),
+    taskNotesInput: document.getElementById('taskNotesInput'),
+
+    // Daily Report Modal
+    reportModal: document.getElementById('reportModal'),
+    reportLoadingContainer: document.getElementById('reportLoadingContainer'),
+    reportContentWrapper: document.getElementById('reportContentWrapper'),
+    openReportBtn: document.getElementById('openReportBtn'),
+    closeReportModalBtn: document.getElementById('closeReportModalBtn'),
+    closeReportBtn: document.getElementById('closeReportBtn'),
+    copyReportBtn: document.getElementById('copyReportBtn'),
+    downloadReportBtn: document.getElementById('downloadReportBtn'),
+    reportDateSubtitle: document.getElementById('reportDateSubtitle'),
+    reportStatsBar: document.getElementById('reportStatsBar'),
+    reportFormattedContainer: document.getElementById('reportFormattedContainer'),
+    reportMarkdownContainer: document.getElementById('reportMarkdownContainer'),
+    reportMarkdownText: document.getElementById('reportMarkdownText'),
+    reportToggleFormatted: document.getElementById('reportToggleFormatted'),
+    reportToggleMarkdown: document.getElementById('reportToggleMarkdown'),
+    copyToast: document.getElementById('copyToast')
   };
 
   // --- Storage Helper ---
@@ -223,6 +244,43 @@
       moveLeftBtn = `<button class="move-btn" data-action="move" data-target="in-progress" title="Move to In Progress">←</button>`;
     }
 
+    // PR Link markup
+    let prHtml = '';
+    const hasPr = Boolean(task.prLink && task.prLink.trim());
+    if (hasPr) {
+      const prDisplay = getPrDisplayText(task.prLink);
+      const prUrl = normalizeUrl(task.prLink);
+      prHtml = `
+        <div class="card-pr-container">
+          <div class="pr-pill-group">
+            <a href="${escapeHtml(prUrl)}" target="_blank" rel="noopener noreferrer" class="pr-pill" title="${escapeHtml(task.prLink)}">
+              <svg class="pr-icon" viewBox="0 0 16 16" fill="currentColor">
+                <path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v7.256A2.246 2.246 0 0111.75 14a2.25 2.25 0 112.25-2.25c0-.414-.336-.75-.75-.75h-1V5a2.5 2.5 0 00-2.5-2.5zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5zm8.5 0a.75.75 0 100 1.5.75.75 0 000-1.5z"></path>
+              </svg>
+              <span class="pr-label">${escapeHtml(prDisplay)}</span>
+              <svg class="pr-external-icon" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M8.636 3.5a.5.5 0 00-.5.5v1a.5.5 0 00.5.5h1.793L5.146 10.793a.5.5 0 00.708.708L11.146 6.207v1.793a.5.5 0 00.5.5h1a.5.5 0 00.5-.5v-4.5a.5.5 0 00-.5-.5h-4.5z"/>
+                <path d="M3 5a2 2 0 00-2 2v6a2 2 0 002 2h6a2 2 0 002-2V9.5a.5.5 0 00-1 0V13a1 1 0 01-1 1H3a1 1 0 01-1-1V7a1 1 0 011-1h3.5a.5.5 0 000-1H3z"/>
+              </svg>
+            </a>
+            <button class="pr-action-btn edit-pr-btn" data-action="edit-pr" title="Edit PR link">✎</button>
+            <button class="pr-action-btn remove-pr-btn" data-action="remove-pr" title="Remove PR link">✕</button>
+          </div>
+        </div>
+      `;
+    } else if (isDone) {
+      prHtml = `
+        <div class="card-pr-container">
+          <button class="add-pr-btn" data-action="add-pr" title="Add Pull Request link">
+            <svg class="pr-icon" viewBox="0 0 16 16" fill="currentColor">
+              <path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v7.256A2.246 2.246 0 0111.75 14a2.25 2.25 0 112.25-2.25c0-.414-.336-.75-.75-.75h-1V5a2.5 2.5 0 00-2.5-2.5zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5zm8.5 0a.75.75 0 100 1.5.75.75 0 000-1.5z"></path>
+            </svg>
+            <span>+ Add PR</span>
+          </button>
+        </div>
+      `;
+    }
+
     card.innerHTML = `
       <div class="card-top-row">
         <div class="card-title-group">
@@ -235,10 +293,14 @@
         </div>
       </div>
       ${task.notes ? `<div class="card-notes">${escapeHtml(task.notes)}</div>` : ''}
+      ${prHtml}
       <div class="card-meta-row">
-        <button class="priority-pill prio-${prio}" data-action="cycle-prio" title="Click to cycle priority (${prioLabel})">
-          ● ${prioLabel}
-        </button>
+        <select class="priority-select prio-${prio}" data-action="select-prio" title="Select priority">
+          <option value="urgent" ${prio === 'urgent' ? 'selected' : ''}>● Urgent</option>
+          <option value="high" ${prio === 'high' ? 'selected' : ''}>● High</option>
+          <option value="medium" ${prio === 'medium' ? 'selected' : ''}>● Medium</option>
+          <option value="low" ${prio === 'low' ? 'selected' : ''}>● Low</option>
+        </select>
         <div class="quick-move-group">
           ${moveLeftBtn}
           ${moveRightBtn}
@@ -265,11 +327,62 @@
       deleteTask(task.id);
     });
 
-    const prioBtn = card.querySelector('[data-action="cycle-prio"]');
-    prioBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      cycleTaskPriority(task.id);
-    });
+    const prioSelect = card.querySelector('[data-action="select-prio"]');
+    if (prioSelect) {
+      prioSelect.addEventListener('click', (e) => {
+        e.stopPropagation();
+      });
+      prioSelect.addEventListener('mousedown', (e) => {
+        e.stopPropagation();
+      });
+      prioSelect.addEventListener('change', (e) => {
+        e.stopPropagation();
+        const newPriority = e.target.value;
+        if (PRIORITIES[newPriority]) {
+          updateTask(task.id, { priority: newPriority });
+        }
+      });
+    }
+
+    // PR Link Listeners
+    const prLinkEl = card.querySelector('.pr-pill');
+    if (prLinkEl) {
+      prLinkEl.addEventListener('click', (e) => {
+        e.stopPropagation();
+      });
+    }
+
+    const addPrBtn = card.querySelector('[data-action="add-pr"]');
+    if (addPrBtn) {
+      addPrBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const val = prompt('Enter Pull Request link (e.g. GitHub PR URL):', '');
+        if (val !== null && val.trim() !== '') {
+          updateTask(task.id, { prLink: val.trim() });
+        }
+      });
+    }
+
+    const editPrBtn = card.querySelector('[data-action="edit-pr"]');
+    if (editPrBtn) {
+      editPrBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const val = prompt('Edit Pull Request URL:', task.prLink || '');
+        if (val !== null) {
+          updateTask(task.id, { prLink: val.trim() });
+        }
+      });
+    }
+
+    const removePrBtn = card.querySelector('[data-action="remove-pr"]');
+    if (removePrBtn) {
+      removePrBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (confirm('Remove PR link from this task?')) {
+          updateTask(task.id, { prLink: '' });
+        }
+      });
+    }
 
     card.querySelectorAll('[data-action="move"]').forEach((btn) => {
       btn.addEventListener('click', (e) => {
@@ -346,6 +459,7 @@
       notes: taskData.notes ? taskData.notes.trim() : '',
       status: taskData.status || 'todo',
       priority: taskData.priority || 'medium',
+      prLink: taskData.prLink ? taskData.prLink.trim() : '',
       createdAt: Date.now(),
       order: state.tasks.filter((t) => t.status === (taskData.status || 'todo')).length
     };
@@ -398,9 +512,12 @@
 
   function clearCompletedTasks() {
     const completedCount = state.tasks.filter((t) => t.status === 'done').length;
-    if (completedCount === 0) return;
+    if (completedCount === 0) {
+      alert('There are no completed tasks in the Done column to clear.');
+      return;
+    }
 
-    if (confirm(`Clear all ${completedCount} completed task(s)?`)) {
+    if (confirm(`Clear all ${completedCount} completed task(s) from the Done column?`)) {
       state.tasks = state.tasks.filter((t) => t.status !== 'done');
       Storage.saveTasks(state.tasks);
       render();
@@ -664,6 +781,7 @@
     elements.taskIdInput.value = '';
     elements.taskTitleInput.value = '';
     elements.taskNotesInput.value = '';
+    elements.taskPrLinkInput.value = '';
     elements.taskColumnSelect.value = status;
     elements.taskPrioritySelect.value = 'medium';
     elements.taskModal.classList.remove('hidden');
@@ -679,6 +797,7 @@
     elements.taskIdInput.value = task.id;
     elements.taskTitleInput.value = task.title;
     elements.taskNotesInput.value = task.notes || '';
+    elements.taskPrLinkInput.value = task.prLink || '';
     elements.taskColumnSelect.value = task.status;
     elements.taskPrioritySelect.value = task.priority || 'medium';
     elements.taskModal.classList.remove('hidden');
@@ -699,6 +818,7 @@
       title: title,
       status: elements.taskColumnSelect.value,
       priority: elements.taskPrioritySelect.value,
+      prLink: elements.taskPrLinkInput.value.trim(),
       notes: elements.taskNotesInput.value.trim()
     };
 
@@ -722,6 +842,390 @@
       .replace(/'/g, '&#039;');
   }
 
+  function normalizeUrl(url) {
+    if (!url) return '';
+    const trimmed = url.trim();
+    if (/^https?:\/\//i.test(trimmed)) return trimmed;
+    if (/^[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+/i.test(trimmed)) return `https://${trimmed}`;
+    return trimmed;
+  }
+
+  function getPrDisplayText(url) {
+    if (!url) return '';
+    const trimmed = url.trim();
+    // GitHub PR pattern: /pull/123
+    const ghMatch = trimmed.match(/\/pull\/(\d+)/i);
+    if (ghMatch) return `PR #${ghMatch[1]}`;
+    // GitLab MR pattern: /merge_requests/123
+    const glMatch = trimmed.match(/\/merge_requests\/(\d+)/i);
+    if (glMatch) return `MR #${glMatch[1]}`;
+    // Short number or "#42"
+    if (/^#?\d+$/.test(trimmed)) return `PR ${trimmed.startsWith('#') ? trimmed : '#' + trimmed}`;
+    // Generic URL
+    try {
+      const parsed = new URL(normalizeUrl(trimmed));
+      const parts = parsed.pathname.split('/').filter(Boolean);
+      if (parts.length >= 2) {
+        return `PR: ${parts[parts.length - 2]}/${parts[parts.length - 1]}`;
+      }
+      return `PR: ${parsed.hostname}`;
+    } catch (e) {
+      return trimmed.length > 25 ? trimmed.substring(0, 22) + '...' : trimmed;
+    }
+  }
+
+  // --- Daily Report Operations ---
+  const REPORT_ICONS = {
+    done: `<svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>`,
+    inProgress: `<svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg>`,
+    todo: `<svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-2a6 6 0 100-12 6 6 0 000 12z" clip-rule="evenodd"/></svg>`
+  };
+
+  let reportViewMode = 'formatted'; // 'formatted' | 'markdown'
+  let generateReportTimer = null;
+
+  function getDailyReportData() {
+    const now = new Date();
+    const dateFormatted = now.toLocaleDateString(undefined, {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+
+    const total = state.tasks.length;
+    const doneTasks = state.tasks.filter((t) => t.status === 'done');
+    const inProgressTasks = state.tasks.filter((t) => t.status === 'in-progress');
+    const todoTasks = state.tasks.filter((t) => t.status === 'todo');
+    const pct = total === 0 ? 0 : Math.round((doneTasks.length / total) * 100);
+
+    return {
+      dateFormatted,
+      total,
+      pct,
+      doneTasks,
+      inProgressTasks,
+      todoTasks
+    };
+  }
+
+  function generateMarkdownReport(data) {
+    let md = `# 📋 Daily Status Report — ${data.dateFormatted}\n\n`;
+    md += `**Summary:** ${data.doneTasks.length}/${data.total} tasks completed (${data.pct}%) | ${data.inProgressTasks.length} in progress | ${data.todoTasks.length} to do\n\n`;
+
+    // Done Section
+    md += `### ✅ Done (${data.doneTasks.length})\n`;
+    if (data.doneTasks.length === 0) {
+      md += `_No tasks completed yet_\n`;
+    } else {
+      data.doneTasks.forEach((t) => {
+        const prio = PRIORITIES[t.priority] ? PRIORITIES[t.priority].label : 'Medium';
+        let line = `- [x] ${t.title} [${prio}]`;
+        if (t.prLink && t.prLink.trim()) {
+          line += ` — PR: ${t.prLink.trim()}`;
+        }
+        md += `${line}\n`;
+        if (t.notes && t.notes.trim()) {
+          md += `  > ${t.notes.trim().replace(/\n/g, ' ')}\n`;
+        }
+      });
+    }
+    md += `\n`;
+
+    // In Progress Section
+    md += `### ⏳ In Progress (${data.inProgressTasks.length})\n`;
+    if (data.inProgressTasks.length === 0) {
+      md += `_No tasks currently in progress_\n`;
+    } else {
+      data.inProgressTasks.forEach((t) => {
+        const prio = PRIORITIES[t.priority] ? PRIORITIES[t.priority].label : 'Medium';
+        let line = `- [/] ${t.title} [${prio}]`;
+        if (t.prLink && t.prLink.trim()) {
+          line += ` — PR: ${t.prLink.trim()}`;
+        }
+        md += `${line}\n`;
+        if (t.notes && t.notes.trim()) {
+          md += `  > ${t.notes.trim().replace(/\n/g, ' ')}\n`;
+        }
+      });
+    }
+    md += `\n`;
+
+    // To Do Section
+    md += `### 📝 To Do (${data.todoTasks.length})\n`;
+    if (data.todoTasks.length === 0) {
+      md += `_No pending tasks_\n`;
+    } else {
+      data.todoTasks.forEach((t) => {
+        const prio = PRIORITIES[t.priority] ? PRIORITIES[t.priority].label : 'Medium';
+        let line = `- [ ] ${t.title} [${prio}]`;
+        md += `${line}\n`;
+        if (t.notes && t.notes.trim()) {
+          md += `  > ${t.notes.trim().replace(/\n/g, ' ')}\n`;
+        }
+      });
+    }
+
+    return md;
+  }
+
+  function renderReportModal() {
+    const data = getDailyReportData();
+    elements.reportDateSubtitle.textContent = `Generated on ${data.dateFormatted} • Status-wise overview`;
+
+    // Render stats
+    elements.reportStatsBar.innerHTML = `
+      <div class="report-stat-pill">
+        <span class="report-stat-num">${data.total}</span>
+        <span class="report-stat-lbl">Total Tasks</span>
+      </div>
+      <div class="report-stat-pill">
+        <span class="report-stat-num stat-done">${data.doneTasks.length}</span>
+        <span class="report-stat-lbl">Done (${data.pct}%)</span>
+      </div>
+      <div class="report-stat-pill">
+        <span class="report-stat-num stat-progress">${data.inProgressTasks.length}</span>
+        <span class="report-stat-lbl">In Progress</span>
+      </div>
+      <div class="report-stat-pill">
+        <span class="report-stat-num stat-todo">${data.todoTasks.length}</span>
+        <span class="report-stat-lbl">To Do</span>
+      </div>
+    `;
+
+    // Render formatted sections
+    let html = '';
+
+    // Done Section
+    html += `
+      <div class="report-section">
+        <div class="report-section-header">
+          <div class="report-section-title-group">
+            <span class="status-dot dot-done"></span>
+            <span class="report-section-title">Done</span>
+          </div>
+          <span class="report-section-badge">${data.doneTasks.length}</span>
+        </div>
+        <div class="report-task-list">
+          ${data.doneTasks.length === 0 ? '<div class="report-empty-notice">No completed tasks yet.</div>' : ''}
+          ${data.doneTasks.map((t) => {
+            const prio = t.priority || 'medium';
+            const prioLabel = PRIORITIES[prio] ? PRIORITIES[prio].label : 'Med';
+            const hasPr = Boolean(t.prLink && t.prLink.trim());
+            const prUrl = hasPr ? normalizeUrl(t.prLink) : '';
+            const prDisplay = hasPr ? getPrDisplayText(t.prLink) : '';
+            return `
+              <div class="report-task-item">
+                <span class="report-status-icon icon-done">${REPORT_ICONS.done}</span>
+                <div class="report-task-content">
+                  <div class="report-task-title-line">
+                    <span class="report-task-title">${escapeHtml(t.title)}</span>
+                    <span class="priority-pill prio-${prio}">${prioLabel}</span>
+                  </div>
+                  ${t.notes ? `<div class="report-task-notes">${escapeHtml(t.notes)}</div>` : ''}
+                </div>
+                <div class="report-task-actions">
+                  ${hasPr ? `
+                    <a href="${escapeHtml(prUrl)}" target="_blank" rel="noopener noreferrer" class="report-pr-badge" title="${escapeHtml(t.prLink)}">
+                      <svg class="pr-icon" viewBox="0 0 16 16" fill="currentColor">
+                        <path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v7.256A2.246 2.246 0 0111.75 14a2.25 2.25 0 112.25-2.25c0-.414-.336-.75-.75-.75h-1V5a2.5 2.5 0 00-2.5-2.5zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5zm8.5 0a.75.75 0 100 1.5.75.75 0 000-1.5z"></path>
+                      </svg>
+                      <span>${escapeHtml(prDisplay)}</span>
+                      <svg class="pr-external-icon" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M8.636 3.5a.5.5 0 00-.5.5v1a.5.5 0 00.5.5h1.793L5.146 10.793a.5.5 0 00.708.708L11.146 6.207v1.793a.5.5 0 00.5.5h1a.5.5 0 00.5-.5v-4.5a.5.5 0 00-.5-.5h-4.5z"/>
+                        <path d="M3 5a2 2 0 00-2 2v6a2 2 0 002 2h6a2 2 0 002-2V9.5a.5.5 0 00-1 0V13a1 1 0 01-1 1H3a1 1 0 01-1-1V7a1 1 0 011-1h3.5a.5.5 0 000-1H3z"/>
+                      </svg>
+                    </a>
+                  ` : `
+                    <button class="add-pr-btn report-add-pr-btn" data-task-id="${t.id}" title="Add PR link for this completed task">
+                      <svg class="pr-icon" viewBox="0 0 16 16" fill="currentColor">
+                        <path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v7.256A2.246 2.246 0 0111.75 14a2.25 2.25 0 112.25-2.25c0-.414-.336-.75-.75-.75h-1V5a2.5 2.5 0 00-2.5-2.5zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5zm8.5 0a.75.75 0 100 1.5.75.75 0 000-1.5z"></path>
+                      </svg>
+                      <span>+ Add PR</span>
+                    </button>
+                  `}
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    `;
+
+    // In Progress Section
+    html += `
+      <div class="report-section">
+        <div class="report-section-header">
+          <div class="report-section-title-group">
+            <span class="status-dot dot-progress"></span>
+            <span class="report-section-title">In Progress</span>
+          </div>
+          <span class="report-section-badge">${data.inProgressTasks.length}</span>
+        </div>
+        <div class="report-task-list">
+          ${data.inProgressTasks.length === 0 ? '<div class="report-empty-notice">Nothing currently in progress.</div>' : ''}
+          ${data.inProgressTasks.map((t) => {
+            const prio = t.priority || 'medium';
+            const prioLabel = PRIORITIES[prio] ? PRIORITIES[prio].label : 'Med';
+            const hasPr = Boolean(t.prLink && t.prLink.trim());
+            const prUrl = hasPr ? normalizeUrl(t.prLink) : '';
+            const prDisplay = hasPr ? getPrDisplayText(t.prLink) : '';
+            return `
+              <div class="report-task-item">
+                <span class="report-status-icon icon-progress">${REPORT_ICONS.inProgress}</span>
+                <div class="report-task-content">
+                  <div class="report-task-title-line">
+                    <span class="report-task-title">${escapeHtml(t.title)}</span>
+                    <span class="priority-pill prio-${prio}">${prioLabel}</span>
+                  </div>
+                  ${t.notes ? `<div class="report-task-notes">${escapeHtml(t.notes)}</div>` : ''}
+                </div>
+                <div class="report-task-actions">
+                  ${hasPr ? `
+                    <a href="${escapeHtml(prUrl)}" target="_blank" rel="noopener noreferrer" class="report-pr-badge" title="${escapeHtml(t.prLink)}">
+                      <svg class="pr-icon" viewBox="0 0 16 16" fill="currentColor">
+                        <path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v7.256A2.246 2.246 0 0111.75 14a2.25 2.25 0 112.25-2.25c0-.414-.336-.75-.75-.75h-1V5a2.5 2.5 0 00-2.5-2.5zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5zm8.5 0a.75.75 0 100 1.5.75.75 0 000-1.5z"></path>
+                      </svg>
+                      <span>${escapeHtml(prDisplay)}</span>
+                      <svg class="pr-external-icon" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M8.636 3.5a.5.5 0 00-.5.5v1a.5.5 0 00.5.5h1.793L5.146 10.793a.5.5 0 00.708.708L11.146 6.207v1.793a.5.5 0 00.5.5h1a.5.5 0 00.5-.5v-4.5a.5.5 0 00-.5-.5h-4.5z"/>
+                        <path d="M3 5a2 2 0 00-2 2v6a2 2 0 002 2h6a2 2 0 002-2V9.5a.5.5 0 00-1 0V13a1 1 0 01-1 1H3a1 1 0 01-1-1V7a1 1 0 011-1h3.5a.5.5 0 000-1H3z"/>
+                      </svg>
+                    </a>
+                  ` : ''}
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    `;
+
+    // To Do Section
+    html += `
+      <div class="report-section">
+        <div class="report-section-header">
+          <div class="report-section-title-group">
+            <span class="status-dot dot-todo"></span>
+            <span class="report-section-title">To Do</span>
+          </div>
+          <span class="report-section-badge">${data.todoTasks.length}</span>
+        </div>
+        <div class="report-task-list">
+          ${data.todoTasks.length === 0 ? '<div class="report-empty-notice">No pending tasks.</div>' : ''}
+          ${data.todoTasks.map((t) => {
+            const prio = t.priority || 'medium';
+            const prioLabel = PRIORITIES[prio] ? PRIORITIES[prio].label : 'Med';
+            return `
+              <div class="report-task-item">
+                <span class="report-status-icon icon-todo">${REPORT_ICONS.todo}</span>
+                <div class="report-task-content">
+                  <div class="report-task-title-line">
+                    <span class="report-task-title">${escapeHtml(t.title)}</span>
+                    <span class="priority-pill prio-${prio}">${prioLabel}</span>
+                  </div>
+                  ${t.notes ? `<div class="report-task-notes">${escapeHtml(t.notes)}</div>` : ''}
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    `;
+
+    elements.reportFormattedContainer.innerHTML = html;
+
+    // Attach listeners to any "+ Add PR" buttons inside the report view
+    elements.reportFormattedContainer.querySelectorAll('.report-add-pr-btn').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const taskId = btn.dataset.taskId;
+        const val = prompt('Enter Pull Request link for this completed task:');
+        if (val !== null && val.trim() !== '') {
+          updateTask(taskId, { prLink: val.trim() });
+          renderReportModal();
+        }
+      });
+    });
+
+    // Populate markdown text
+    const md = generateMarkdownReport(data);
+    elements.reportMarkdownText.value = md;
+  }
+
+  function setReportViewMode(mode) {
+    reportViewMode = mode;
+    elements.reportToggleFormatted.classList.toggle('active', mode === 'formatted');
+    elements.reportToggleMarkdown.classList.toggle('active', mode === 'markdown');
+    elements.reportFormattedContainer.classList.toggle('hidden', mode !== 'formatted');
+    elements.reportMarkdownContainer.classList.toggle('hidden', mode !== 'markdown');
+  }
+
+  function openReportModal() {
+    if (generateReportTimer) {
+      clearTimeout(generateReportTimer);
+    }
+
+    elements.reportModal.classList.remove('hidden');
+    elements.copyToast.classList.add('hidden');
+    elements.reportDateSubtitle.textContent = 'Report is generating...';
+
+    // Show loading state, hide main report content
+    elements.reportLoadingContainer.classList.remove('hidden');
+    elements.reportContentWrapper.classList.add('hidden');
+
+    // Display "Report is generating..." and render smoothly
+    generateReportTimer = setTimeout(() => {
+      renderReportModal();
+      setReportViewMode('formatted');
+      elements.reportLoadingContainer.classList.add('hidden');
+      elements.reportContentWrapper.classList.remove('hidden');
+    }, 450);
+  }
+
+  function closeReportModal() {
+    if (generateReportTimer) {
+      clearTimeout(generateReportTimer);
+    }
+    elements.reportModal.classList.add('hidden');
+  }
+
+  async function copyReportToClipboard() {
+    const data = getDailyReportData();
+    const md = generateMarkdownReport(data);
+    try {
+      await navigator.clipboard.writeText(md);
+      elements.copyToast.classList.remove('hidden');
+      setTimeout(() => {
+        elements.copyToast.classList.add('hidden');
+      }, 2500);
+    } catch (err) {
+      // Fallback
+      setReportViewMode('markdown');
+      elements.reportMarkdownText.select();
+      document.execCommand('copy');
+      elements.copyToast.classList.remove('hidden');
+      setTimeout(() => {
+        elements.copyToast.classList.add('hidden');
+      }, 2500);
+    }
+  }
+
+  function downloadReportFile() {
+    const data = getDailyReportData();
+    const md = generateMarkdownReport(data);
+    const dateStr = new Date().toISOString().split('T')[0];
+    const blob = new Blob([md], { type: 'text/markdown;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `daily-report-${dateStr}.md`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
   // --- Event Bindings ---
   function initEventBindings() {
     // Clock tick
@@ -743,6 +1247,34 @@
         openAddTaskModal(col);
       });
     });
+
+    // Clear column button for Done tasks
+    if (elements.clearDoneColBtn) {
+      elements.clearDoneColBtn.addEventListener('click', clearCompletedTasks);
+    }
+
+    // Daily Report modal triggers
+    if (elements.openReportBtn) {
+      elements.openReportBtn.addEventListener('click', openReportModal);
+    }
+    if (elements.closeReportModalBtn) {
+      elements.closeReportModalBtn.addEventListener('click', closeReportModal);
+    }
+    if (elements.closeReportBtn) {
+      elements.closeReportBtn.addEventListener('click', closeReportModal);
+    }
+    if (elements.copyReportBtn) {
+      elements.copyReportBtn.addEventListener('click', copyReportToClipboard);
+    }
+    if (elements.downloadReportBtn) {
+      elements.downloadReportBtn.addEventListener('click', downloadReportFile);
+    }
+    if (elements.reportToggleFormatted) {
+      elements.reportToggleFormatted.addEventListener('click', () => setReportViewMode('formatted'));
+    }
+    if (elements.reportToggleMarkdown) {
+      elements.reportToggleMarkdown.addEventListener('click', () => setReportViewMode('markdown'));
+    }
 
     // Bulk Add modal triggers
     elements.openBulkAddBtn.addEventListener('click', () => openBulkModal('todo'));
@@ -779,7 +1311,8 @@
     elements.clearCompletedBtn.addEventListener('click', clearCompletedTasks);
 
     // Backdrop click to close modals
-    [elements.bulkAddModal, elements.taskModal].forEach((modal) => {
+    [elements.bulkAddModal, elements.taskModal, elements.reportModal].forEach((modal) => {
+      if (!modal) return;
       modal.addEventListener('click', (e) => {
         if (e.target === modal) {
           modal.classList.add('hidden');
@@ -793,6 +1326,7 @@
       if (e.key === 'Escape') {
         closeBulkModal();
         closeTaskModal();
+        closeReportModal();
       }
 
       // Ctrl+Enter or Cmd+Enter submits active modal
@@ -812,6 +1346,9 @@
         } else if (e.key === 'n' || e.key === 'N') {
           e.preventDefault();
           openAddTaskModal('todo');
+        } else if (e.key === 'r' || e.key === 'R') {
+          e.preventDefault();
+          openReportModal();
         }
       }
     });
