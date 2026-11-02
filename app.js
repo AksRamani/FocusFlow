@@ -83,100 +83,120 @@
   };
 
   // --- DOM Elements ---
-  const elements = {
-    currentTime: document.getElementById('currentTime'),
-    currentDate: document.getElementById('currentDate'),
-    progressBar: document.getElementById('progressBar'),
-    progressText: document.getElementById('progressText'),
-    searchInput: document.getElementById('searchInput'),
-    clearSearchBtn: document.getElementById('clearSearchBtn'),
-    priorityFilter: document.getElementById('priorityFilter'),
-    clearAllBtn: document.getElementById('clearAllBtn'),
-    boardContainer: document.getElementById('boardContainer'),
-    viewTabBtns: document.querySelectorAll('.tab-btn'),
-    // Modals
-    bulkAddModal: document.getElementById('bulkAddModal'),
-    openBulkAddBtn: document.getElementById('openBulkAddBtn'),
-    closeBulkAddBtn: document.getElementById('closeBulkAddBtn'),
-    cancelBulkAddBtn: document.getElementById('cancelBulkAddBtn'),
-    submitBulkAddBtn: document.getElementById('submitBulkAddBtn'),
-    bulkTasksInput: document.getElementById('bulkTasksInput'),
-    bulkTargetColumn: document.getElementById('bulkTargetColumn'),
-    bulkDefaultPriority: document.getElementById('bulkDefaultPriority'),
-    bulkTaskCount: document.getElementById('bulkTaskCount'),
+  let elements = {};
 
-    taskModal: document.getElementById('taskModal'),
-    taskForm: document.getElementById('taskForm'),
-    taskModalTitle: document.getElementById('taskModalTitle'),
-    openAddTaskBtn: document.getElementById('openAddTaskBtn'),
-    closeTaskModalBtn: document.getElementById('closeTaskModalBtn'),
-    cancelTaskModalBtn: document.getElementById('cancelTaskModalBtn'),
-    taskIdInput: document.getElementById('taskIdInput'),
-    taskTitleInput: document.getElementById('taskTitleInput'),
-    taskColumnSelect: document.getElementById('taskColumnSelect'),
-    taskPrioritySelect: document.getElementById('taskPrioritySelect'),
-    taskPrLinkInput: document.getElementById('taskPrLinkInput'),
-    taskNotesInput: document.getElementById('taskNotesInput'),
+  function initElements() {
+    elements = {
+      currentTime: document.getElementById('currentTime'),
+      currentDate: document.getElementById('currentDate'),
+      progressBar: document.getElementById('progressBar'),
+      progressText: document.getElementById('progressText'),
+      searchInput: document.getElementById('searchInput'),
+      clearSearchBtn: document.getElementById('clearSearchBtn'),
+      priorityFilter: document.getElementById('priorityFilter'),
+      clearAllBtn: document.getElementById('clearAllBtn'),
+      boardContainer: document.getElementById('boardContainer'),
+      viewTabBtns: document.querySelectorAll('.tab-btn'),
+      // Modals
+      bulkAddModal: document.getElementById('bulkAddModal'),
+      openBulkAddBtn: document.getElementById('openBulkAddBtn'),
+      closeBulkAddBtn: document.getElementById('closeBulkAddBtn'),
+      cancelBulkAddBtn: document.getElementById('cancelBulkAddBtn'),
+      submitBulkAddBtn: document.getElementById('submitBulkAddBtn'),
+      bulkTasksInput: document.getElementById('bulkTasksInput'),
+      bulkTargetColumn: document.getElementById('bulkTargetColumn'),
+      bulkDefaultPriority: document.getElementById('bulkDefaultPriority'),
+      bulkTaskCount: document.getElementById('bulkTaskCount'),
 
-    // Daily Report Modal
-    reportModal: document.getElementById('reportModal'),
-    reportLoadingContainer: document.getElementById('reportLoadingContainer'),
-    reportContentWrapper: document.getElementById('reportContentWrapper'),
-    openReportBtn: document.getElementById('openReportBtn'),
-    closeReportModalBtn: document.getElementById('closeReportModalBtn'),
-    closeReportBtn: document.getElementById('closeReportBtn'),
-    copyReportBtn: document.getElementById('copyReportBtn'),
-    downloadReportBtn: document.getElementById('downloadReportBtn'),
-    reportDateSubtitle: document.getElementById('reportDateSubtitle'),
-    reportStatsBar: document.getElementById('reportStatsBar'),
-    reportFormattedContainer: document.getElementById('reportFormattedContainer'),
-    reportMarkdownContainer: document.getElementById('reportMarkdownContainer'),
-    reportMarkdownText: document.getElementById('reportMarkdownText'),
-    reportToggleFormatted: document.getElementById('reportToggleFormatted'),
-    reportToggleMarkdown: document.getElementById('reportToggleMarkdown'),
-    copyToast: document.getElementById('copyToast'),
+      taskModal: document.getElementById('taskModal'),
+      taskForm: document.getElementById('taskForm'),
+      taskModalTitle: document.getElementById('taskModalTitle'),
+      openAddTaskBtn: document.getElementById('openAddTaskBtn'),
+      closeTaskModalBtn: document.getElementById('closeTaskModalBtn'),
+      cancelTaskModalBtn: document.getElementById('cancelTaskModalBtn'),
+      taskIdInput: document.getElementById('taskIdInput'),
+      taskTitleInput: document.getElementById('taskTitleInput'),
+      taskColumnSelect: document.getElementById('taskColumnSelect'),
+      taskPrioritySelect: document.getElementById('taskPrioritySelect'),
+      taskPrLinkInput: document.getElementById('taskPrLinkInput'),
+      taskNotesInput: document.getElementById('taskNotesInput'),
 
-    // Quick Links Right Sidebar
-    quickLinksToggleBtn: document.getElementById('quickLinksToggleBtn'),
-    quickLinksCountBadge: document.getElementById('quickLinksCountBadge'),
-    quickLinksSidebar: document.getElementById('quickLinksSidebar'),
-    pinQuickLinksBtn: document.getElementById('pinQuickLinksBtn'),
-    closeQuickLinksBtn: document.getElementById('closeQuickLinksBtn'),
-    openAddQuickLinkBtn: document.getElementById('openAddQuickLinkBtn'),
-    quickLinksSearchInput: document.getElementById('quickLinksSearchInput'),
-    quickLinkFormContainer: document.getElementById('quickLinkFormContainer'),
-    quickLinkForm: document.getElementById('quickLinkForm'),
-    quickLinkFormHeading: document.getElementById('quickLinkFormHeading'),
-    quickLinkTitleInput: document.getElementById('quickLinkTitleInput'),
-    quickLinkUrlInput: document.getElementById('quickLinkUrlInput'),
-    cancelQuickLinkBtn: document.getElementById('cancelQuickLinkBtn'),
-    saveQuickLinkBtn: document.getElementById('saveQuickLinkBtn'),
-    quickLinksList: document.getElementById('quickLinksList')
-  };
+      // Daily Report Modal
+      reportModal: document.getElementById('reportModal'),
+      reportLoadingContainer: document.getElementById('reportLoadingContainer'),
+      reportContentWrapper: document.getElementById('reportContentWrapper'),
+      openReportBtn: document.getElementById('openReportBtn'),
+      closeReportModalBtn: document.getElementById('closeReportModalBtn'),
+      closeReportBtn: document.getElementById('closeReportBtn'),
+      copyReportBtn: document.getElementById('copyReportBtn'),
+      downloadReportBtn: document.getElementById('downloadReportBtn'),
+      reportDateSubtitle: document.getElementById('reportDateSubtitle'),
+      reportStatsBar: document.getElementById('reportStatsBar'),
+      reportFormattedContainer: document.getElementById('reportFormattedContainer'),
+      reportMarkdownContainer: document.getElementById('reportMarkdownContainer'),
+      reportMarkdownText: document.getElementById('reportMarkdownText'),
+      reportToggleFormatted: document.getElementById('reportToggleFormatted'),
+      reportToggleMarkdown: document.getElementById('reportToggleMarkdown'),
+      copyToast: document.getElementById('copyToast'),
+
+      // Quick Links Right Sidebar
+      quickLinksToggleBtn: document.getElementById('quickLinksToggleBtn'),
+      quickLinksCountBadge: document.getElementById('quickLinksCountBadge'),
+      quickLinksSidebar: document.getElementById('quickLinksSidebar'),
+      pinQuickLinksBtn: document.getElementById('pinQuickLinksBtn'),
+      closeQuickLinksBtn: document.getElementById('closeQuickLinksBtn'),
+      openAddQuickLinkBtn: document.getElementById('openAddQuickLinkBtn'),
+      quickLinksSearchInput: document.getElementById('quickLinksSearchInput'),
+      quickLinkFormContainer: document.getElementById('quickLinkFormContainer'),
+      quickLinkForm: document.getElementById('quickLinkForm'),
+      quickLinkFormHeading: document.getElementById('quickLinkFormHeading'),
+      quickLinkTitleInput: document.getElementById('quickLinkTitleInput'),
+      quickLinkUrlInput: document.getElementById('quickLinkUrlInput'),
+      cancelQuickLinkBtn: document.getElementById('cancelQuickLinkBtn'),
+      saveQuickLinkBtn: document.getElementById('saveQuickLinkBtn'),
+      quickLinksList: document.getElementById('quickLinksList')
+    };
+  }
 
   // --- Storage Helper ---
   const Storage = {
     async loadTasks() {
       return new Promise((resolve) => {
-        if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
-          chrome.storage.local.get(['focusflow_tasks'], (res) => {
-            if (res && res.focusflow_tasks && Array.isArray(res.focusflow_tasks)) {
-              resolve(res.focusflow_tasks);
-            } else {
-              resolve(DEFAULT_TASKS);
-            }
-          });
-        } else {
+        let settled = false;
+        const fallback = () => {
+          if (settled) return;
+          settled = true;
           try {
             const raw = localStorage.getItem('focusflow_tasks');
-            if (raw) {
-              resolve(JSON.parse(raw));
-            } else {
-              resolve(DEFAULT_TASKS);
-            }
+            resolve(raw ? JSON.parse(raw) : DEFAULT_TASKS);
           } catch (e) {
             resolve(DEFAULT_TASKS);
           }
+        };
+
+        const timer = setTimeout(fallback, 600);
+
+        try {
+          if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+            chrome.storage.local.get(['focusflow_tasks'], (res) => {
+              if (settled) return;
+              clearTimeout(timer);
+              settled = true;
+              if (chrome.runtime && chrome.runtime.lastError) {
+                fallback();
+                return;
+              }
+              if (res && res.focusflow_tasks && Array.isArray(res.focusflow_tasks)) {
+                resolve(res.focusflow_tasks);
+              } else {
+                resolve(DEFAULT_TASKS);
+              }
+            });
+          } else {
+            fallback();
+          }
+        } catch (e) {
+          fallback();
         }
       });
     },
@@ -184,36 +204,51 @@
     saveTasks(tasks) {
       if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
         chrome.storage.local.set({ focusflow_tasks: tasks });
-      } else {
-        try {
-          localStorage.setItem('focusflow_tasks', JSON.stringify(tasks));
-        } catch (e) {
-          console.error('Failed to save to localStorage:', e);
-        }
+      }
+      try {
+        localStorage.setItem('focusflow_tasks', JSON.stringify(tasks));
+      } catch (e) {
+        console.error('Failed to save to localStorage:', e);
       }
     },
 
     async loadQuickLinks() {
       return new Promise((resolve) => {
-        if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
-          chrome.storage.local.get(['focusflow_quick_links'], (res) => {
-            if (res && res.focusflow_quick_links && Array.isArray(res.focusflow_quick_links)) {
-              resolve(res.focusflow_quick_links);
-            } else {
-              resolve(DEFAULT_QUICK_LINKS);
-            }
-          });
-        } else {
+        let settled = false;
+        const fallback = () => {
+          if (settled) return;
+          settled = true;
           try {
             const raw = localStorage.getItem('focusflow_quick_links');
-            if (raw) {
-              resolve(JSON.parse(raw));
-            } else {
-              resolve(DEFAULT_QUICK_LINKS);
-            }
+            resolve(raw ? JSON.parse(raw) : DEFAULT_QUICK_LINKS);
           } catch (e) {
             resolve(DEFAULT_QUICK_LINKS);
           }
+        };
+
+        const timer = setTimeout(fallback, 600);
+
+        try {
+          if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+            chrome.storage.local.get(['focusflow_quick_links'], (res) => {
+              if (settled) return;
+              clearTimeout(timer);
+              settled = true;
+              if (chrome.runtime && chrome.runtime.lastError) {
+                fallback();
+                return;
+              }
+              if (res && res.focusflow_quick_links && Array.isArray(res.focusflow_quick_links)) {
+                resolve(res.focusflow_quick_links);
+              } else {
+                resolve(DEFAULT_QUICK_LINKS);
+              }
+            });
+          } else {
+            fallback();
+          }
+        } catch (e) {
+          fallback();
         }
       });
     },
@@ -221,27 +256,46 @@
     saveQuickLinks(links) {
       if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
         chrome.storage.local.set({ focusflow_quick_links: links });
-      } else {
-        try {
-          localStorage.setItem('focusflow_quick_links', JSON.stringify(links));
-        } catch (e) {
-          console.error('Failed to save quick links:', e);
-        }
+      }
+      try {
+        localStorage.setItem('focusflow_quick_links', JSON.stringify(links));
+      } catch (e) {
+        console.error('Failed to save quick links:', e);
       }
     },
 
     async loadSidebarPinned() {
       return new Promise((resolve) => {
-        if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
-          chrome.storage.local.get(['focusflow_sidebar_pinned'], (res) => {
-            resolve(Boolean(res && res.focusflow_sidebar_pinned));
-          });
-        } else {
+        let settled = false;
+        const fallback = () => {
+          if (settled) return;
+          settled = true;
           try {
             resolve(localStorage.getItem('focusflow_sidebar_pinned') === 'true');
           } catch (e) {
             resolve(false);
           }
+        };
+
+        const timer = setTimeout(fallback, 600);
+
+        try {
+          if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+            chrome.storage.local.get(['focusflow_sidebar_pinned'], (res) => {
+              if (settled) return;
+              clearTimeout(timer);
+              settled = true;
+              if (chrome.runtime && chrome.runtime.lastError) {
+                fallback();
+                return;
+              }
+              resolve(Boolean(res && res.focusflow_sidebar_pinned));
+            });
+          } else {
+            fallback();
+          }
+        } catch (e) {
+          fallback();
         }
       });
     },
@@ -249,12 +303,11 @@
     saveSidebarPinned(pinned) {
       if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
         chrome.storage.local.set({ focusflow_sidebar_pinned: Boolean(pinned) });
-      } else {
-        try {
-          localStorage.setItem('focusflow_sidebar_pinned', String(Boolean(pinned)));
-        } catch (e) {
-          console.error('Failed to save sidebar pinned state:', e);
-        }
+      }
+      try {
+        localStorage.setItem('focusflow_sidebar_pinned', String(Boolean(pinned)));
+      } catch (e) {
+        console.error('Failed to save sidebar pinned state:', e);
       }
     }
   };
@@ -1557,7 +1610,7 @@
         <div class="quick-link-card" data-link-id="${escapeHtml(link.id)}">
           <a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" class="quick-link-main" title="${escapeHtml(link.title)} (${escapeHtml(hostname)})">
             <div class="quick-link-favicon-wrap">
-              <img src="https://www.google.com/s2/favicons?domain=${encodeURIComponent(hostname)}&sz=32" alt="" class="quick-link-favicon" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';">
+              <img src="https://www.google.com/s2/favicons?domain=${encodeURIComponent(hostname)}&sz=32" alt="" class="quick-link-favicon" loading="lazy">
               <div class="quick-link-fallback-avatar" style="display:none;">${escapeHtml(initial)}</div>
             </div>
             <div class="quick-link-info">
@@ -1579,6 +1632,17 @@
         </div>
       `;
     }).join('');
+
+    // Attach favicon error fallback listeners safely without CSP inline handlers
+    elements.quickLinksList.querySelectorAll('.quick-link-favicon').forEach((img) => {
+      img.addEventListener('error', () => {
+        img.style.display = 'none';
+        const fallback = img.nextElementSibling;
+        if (fallback) {
+          fallback.style.display = 'flex';
+        }
+      });
+    });
 
     // Attach card event listeners
     elements.quickLinksList.querySelectorAll('[data-action="copy-url"]').forEach((btn) => {
@@ -1688,12 +1752,14 @@
     setInterval(updateClock, 1000);
 
     // View tab switching
-    elements.viewTabBtns.forEach((btn) => {
-      btn.addEventListener('click', () => {
-        state.activeView = btn.dataset.view;
-        updateViewMode();
+    if (elements.viewTabBtns && elements.viewTabBtns.length) {
+      elements.viewTabBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          state.activeView = btn.dataset.view;
+          updateViewMode();
+        });
       });
-    });
+    }
 
     // Column quick add buttons
     document.querySelectorAll('.quick-add-btn, .add-inline-btn').forEach((btn) => {
@@ -1738,36 +1804,44 @@
     }
 
     // Bulk Add modal triggers
-    elements.openBulkAddBtn.addEventListener('click', () => openBulkModal('todo'));
-    elements.closeBulkAddBtn.addEventListener('click', closeBulkModal);
-    elements.cancelBulkAddBtn.addEventListener('click', closeBulkModal);
-    elements.submitBulkAddBtn.addEventListener('click', handleBulkSubmit);
-    elements.bulkTasksInput.addEventListener('input', updateBulkLineCount);
+    if (elements.openBulkAddBtn) elements.openBulkAddBtn.addEventListener('click', () => openBulkModal('todo'));
+    if (elements.closeBulkAddBtn) elements.closeBulkAddBtn.addEventListener('click', closeBulkModal);
+    if (elements.cancelBulkAddBtn) elements.cancelBulkAddBtn.addEventListener('click', closeBulkModal);
+    if (elements.submitBulkAddBtn) elements.submitBulkAddBtn.addEventListener('click', handleBulkSubmit);
+    if (elements.bulkTasksInput) elements.bulkTasksInput.addEventListener('input', updateBulkLineCount);
 
     // Single Task modal triggers
-    elements.openAddTaskBtn.addEventListener('click', () => openAddTaskModal('todo'));
-    elements.closeTaskModalBtn.addEventListener('click', closeTaskModal);
-    elements.cancelTaskModalBtn.addEventListener('click', closeTaskModal);
-    elements.taskForm.addEventListener('submit', handleTaskFormSubmit);
+    if (elements.openAddTaskBtn) elements.openAddTaskBtn.addEventListener('click', () => openAddTaskModal('todo'));
+    if (elements.closeTaskModalBtn) elements.closeTaskModalBtn.addEventListener('click', closeTaskModal);
+    if (elements.cancelTaskModalBtn) elements.cancelTaskModalBtn.addEventListener('click', closeTaskModal);
+    if (elements.taskForm) elements.taskForm.addEventListener('submit', handleTaskFormSubmit);
 
     // Search and filters
-    elements.searchInput.addEventListener('input', (e) => {
-      state.searchQuery = e.target.value;
-      elements.clearSearchBtn.classList.toggle('hidden', state.searchQuery === '');
-      render();
-    });
+    if (elements.searchInput) {
+      elements.searchInput.addEventListener('input', (e) => {
+        state.searchQuery = e.target.value;
+        if (elements.clearSearchBtn) {
+          elements.clearSearchBtn.classList.toggle('hidden', state.searchQuery === '');
+        }
+        render();
+      });
+    }
 
-    elements.clearSearchBtn.addEventListener('click', () => {
-      elements.searchInput.value = '';
-      state.searchQuery = '';
-      elements.clearSearchBtn.classList.add('hidden');
-      render();
-    });
+    if (elements.clearSearchBtn) {
+      elements.clearSearchBtn.addEventListener('click', () => {
+        if (elements.searchInput) elements.searchInput.value = '';
+        state.searchQuery = '';
+        elements.clearSearchBtn.classList.add('hidden');
+        render();
+      });
+    }
 
-    elements.priorityFilter.addEventListener('change', (e) => {
-      state.priorityFilter = e.target.value;
-      render();
-    });
+    if (elements.priorityFilter) {
+      elements.priorityFilter.addEventListener('change', (e) => {
+        state.priorityFilter = e.target.value;
+        render();
+      });
+    }
 
     if (elements.clearAllBtn) {
       elements.clearAllBtn.addEventListener('click', clearAllTasks);
@@ -1797,7 +1871,7 @@
 
       // Ctrl+Enter or Cmd+Enter submits active modal
       if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-        if (!elements.bulkAddModal.classList.contains('hidden')) {
+        if (elements.bulkAddModal && !elements.bulkAddModal.classList.contains('hidden')) {
           e.preventDefault();
           handleBulkSubmit();
         }
@@ -1817,7 +1891,7 @@
           openReportModal();
         } else if (e.key === 'l' || e.key === 'L') {
           e.preventDefault();
-          if (elements.quickLinksSidebar.classList.contains('open')) {
+          if (elements.quickLinksSidebar && elements.quickLinksSidebar.classList.contains('open')) {
             closeQuickLinksSidebar();
           } else {
             openQuickLinksSidebar();
@@ -1838,7 +1912,7 @@
       // Click toggle
       elements.quickLinksToggleBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        if (elements.quickLinksSidebar.classList.contains('open')) {
+        if (elements.quickLinksSidebar && elements.quickLinksSidebar.classList.contains('open')) {
           closeQuickLinksSidebar();
         } else {
           openQuickLinksSidebar();
@@ -1905,13 +1979,18 @@
 
   // --- App Initialization ---
   async function init() {
-    initEventBindings();
-    state.tasks = await Storage.loadTasks();
-    state.quickLinks = await Storage.loadQuickLinks();
-    const pinned = await Storage.loadSidebarPinned();
-    setQuickLinksPinned(pinned);
-    render();
-    renderQuickLinks();
+    try {
+      initElements();
+      initEventBindings();
+      state.tasks = await Storage.loadTasks();
+      state.quickLinks = await Storage.loadQuickLinks();
+      const pinned = await Storage.loadSidebarPinned();
+      setQuickLinksPinned(pinned);
+      render();
+      renderQuickLinks();
+    } catch (err) {
+      console.error('FocusFlow init error:', err);
+    }
   }
 
   // Start app
