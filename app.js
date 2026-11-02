@@ -73,6 +73,7 @@
     tasks: [],
     quickLinks: [],
     quickLinksPinned: false,
+    quickLinksManageMode: false,
     quickLinksSearch: '',
     editingQuickLinkId: null,
     activeView: 'board', // 'board' | 'todo' | 'in-progress' | 'done'
@@ -146,11 +147,13 @@
       pinQuickLinksBtn: document.getElementById('pinQuickLinksBtn'),
       closeQuickLinksBtn: document.getElementById('closeQuickLinksBtn'),
       openAddQuickLinkBtn: document.getElementById('openAddQuickLinkBtn'),
+      toggleManageQuickLinksBtn: document.getElementById('toggleManageQuickLinksBtn'),
       quickLinksList: document.getElementById('quickLinksList'),
       quickLinkModal: document.getElementById('quickLinkModal'),
       quickLinkModalTitle: document.getElementById('quickLinkModalTitle'),
       closeQuickLinkModalBtn: document.getElementById('closeQuickLinkModalBtn'),
       cancelQuickLinkModalBtn: document.getElementById('cancelQuickLinkModalBtn'),
+      deleteQuickLinkModalBtn: document.getElementById('deleteQuickLinkModalBtn'),
       saveQuickLinkModalBtn: document.getElementById('saveQuickLinkModalBtn'),
       quickLinkForm: document.getElementById('quickLinkForm'),
       quickLinkTitleInput: document.getElementById('quickLinkTitleInput'),
@@ -1513,6 +1516,9 @@
     if (elements.quickLinksSidebar) {
       elements.quickLinksSidebar.classList.add('open');
     }
+    if (elements.quickLinksToggleBtn) {
+      elements.quickLinksToggleBtn.classList.add('active');
+    }
   }
 
   function scheduleCloseQuickLinksSidebar(delay = 350) {
@@ -1523,6 +1529,9 @@
     sidebarHoverTimer = setTimeout(() => {
       if (!state.quickLinksPinned && elements.quickLinksSidebar) {
         elements.quickLinksSidebar.classList.remove('open');
+        if (elements.quickLinksToggleBtn) {
+          elements.quickLinksToggleBtn.classList.remove('active');
+        }
       }
     }, delay);
   }
@@ -1562,6 +1571,31 @@
     if (elements.quickLinksSidebar) {
       elements.quickLinksSidebar.classList.remove('open');
     }
+    if (elements.quickLinksToggleBtn) {
+      elements.quickLinksToggleBtn.classList.remove('active');
+    }
+  }
+
+  function toggleQuickLinksSidebar() {
+    if (elements.quickLinksSidebar && elements.quickLinksSidebar.classList.contains('open')) {
+      closeQuickLinksSidebar();
+    } else {
+      openQuickLinksSidebar();
+    }
+  }
+
+  function toggleQuickLinksManageMode() {
+    state.quickLinksManageMode = !state.quickLinksManageMode;
+    if (elements.quickLinksSidebar) {
+      elements.quickLinksSidebar.classList.toggle('manage-mode', state.quickLinksManageMode);
+    }
+    if (elements.toggleManageQuickLinksBtn) {
+      elements.toggleManageQuickLinksBtn.classList.toggle('active', state.quickLinksManageMode);
+      elements.toggleManageQuickLinksBtn.setAttribute(
+        'title',
+        state.quickLinksManageMode ? 'Done Managing Links' : 'Edit & Remove Links'
+      );
+    }
   }
 
   let draggedQuickLinkId = null;
@@ -1592,7 +1626,9 @@
 
       return `
         <div class="quick-link-icon-item" draggable="true" data-link-id="${escapeHtml(link.id)}">
-          <a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" class="quick-link-icon-btn" aria-label="${escapeHtml(link.title)}" title="${escapeHtml(link.title)}">
+          <button type="button" class="quick-link-action-badge quick-link-delete-badge" data-action="badge-delete-link" data-id="${escapeHtml(link.id)}" title="Delete link">&times;</button>
+          <button type="button" class="quick-link-action-badge quick-link-edit-badge" data-action="badge-edit-link" data-id="${escapeHtml(link.id)}" title="Edit link">&#9998;</button>
+          <a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" class="quick-link-icon-btn" data-link-id="${escapeHtml(link.id)}" aria-label="${escapeHtml(link.title)}" title="${escapeHtml(link.title)} (Right-click to Edit/Remove)">
             <img src="https://www.google.com/s2/favicons?domain=${encodeURIComponent(hostname)}&sz=64" alt="" class="quick-link-favicon" loading="lazy">
             <div class="quick-link-fallback" style="display:none;">${escapeHtml(initial)}</div>
           </a>
@@ -1605,11 +1641,11 @@
               <button type="button" class="popover-btn" data-action="copy-ql-url" data-url="${escapeHtml(url)}" title="Copy URL">
                 ${PR_COPY_ICON_SVG} Copy
               </button>
-              <button type="button" class="popover-btn" data-action="edit-ql-link" data-id="${escapeHtml(link.id)}" title="Edit link">
+              <button type="button" class="popover-btn edit-btn" data-action="edit-ql-link" data-id="${escapeHtml(link.id)}" title="Edit link">
                 ✎ Edit
               </button>
               <button type="button" class="popover-btn delete-btn" data-action="delete-ql-link" data-id="${escapeHtml(link.id)}" title="Delete link">
-                ✕
+                ✕ Remove
               </button>
             </div>
           </div>
@@ -1628,7 +1664,7 @@
       });
     });
 
-    // Attach popover action button listeners
+    // Attach popover copy URL listeners
     elements.quickLinksList.querySelectorAll('[data-action="copy-ql-url"]').forEach((btn) => {
       btn.addEventListener('click', async (e) => {
         e.stopPropagation();
@@ -1647,7 +1683,8 @@
       });
     });
 
-    elements.quickLinksList.querySelectorAll('[data-action="edit-ql-link"]').forEach((btn) => {
+    // Attach edit button listeners (both popover edit & direct icon badge)
+    elements.quickLinksList.querySelectorAll('[data-action="edit-ql-link"], [data-action="badge-edit-link"]').forEach((btn) => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
         e.preventDefault();
@@ -1659,22 +1696,58 @@
       });
     });
 
-    elements.quickLinksList.querySelectorAll('[data-action="delete-ql-link"]').forEach((btn) => {
+    // Attach delete button listeners (both popover delete & direct icon badge)
+    elements.quickLinksList.querySelectorAll('[data-action="delete-ql-link"], [data-action="badge-delete-link"]').forEach((btn) => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
         e.preventDefault();
         const linkId = btn.dataset.id;
+        deleteQuickLink(linkId);
+      });
+    });
+
+    // Click on link icon in manage mode opens Edit modal instead of navigating
+    elements.quickLinksList.querySelectorAll('.quick-link-icon-btn').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        if (state.quickLinksManageMode) {
+          e.preventDefault();
+          e.stopPropagation();
+          const linkId = btn.dataset.linkId;
+          const link = state.quickLinks.find((l) => l.id === linkId);
+          if (link) {
+            openQuickLinkModal(link);
+          }
+        }
+      });
+    });
+
+    // Right-click on link item triggers Edit modal directly
+    elements.quickLinksList.querySelectorAll('.quick-link-icon-item').forEach((item) => {
+      item.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const linkId = item.dataset.linkId;
         const link = state.quickLinks.find((l) => l.id === linkId);
-        if (link && confirm(`Delete quick link "${link.title}"?`)) {
-          state.quickLinks = state.quickLinks.filter((l) => l.id !== linkId);
-          Storage.saveQuickLinks(state.quickLinks);
-          renderQuickLinks();
+        if (link) {
+          openQuickLinkModal(link);
         }
       });
     });
 
     // Setup native drag & drop reordering
     setupQuickLinksDragAndDrop();
+  }
+
+  function deleteQuickLink(linkId) {
+    const link = state.quickLinks.find((l) => l.id === linkId);
+    if (!link) return;
+    if (confirm(`Remove quick link "${link.title}"?`)) {
+      state.quickLinks = state.quickLinks.filter((l) => l.id !== linkId);
+      Storage.saveQuickLinks(state.quickLinks);
+      renderQuickLinks();
+      closeQuickLinkModal();
+      showCopyFeedback('Quick link removed');
+    }
   }
 
   function setupQuickLinksDragAndDrop() {
@@ -1775,12 +1848,14 @@
       if (elements.quickLinkTitleInput) elements.quickLinkTitleInput.value = linkToEdit.title;
       if (elements.quickLinkUrlInput) elements.quickLinkUrlInput.value = linkToEdit.url;
       if (elements.saveQuickLinkModalBtn) elements.saveQuickLinkModalBtn.textContent = 'Update Link';
+      if (elements.deleteQuickLinkModalBtn) elements.deleteQuickLinkModalBtn.classList.remove('hidden');
     } else {
       state.editingQuickLinkId = null;
       if (elements.quickLinkModalTitle) elements.quickLinkModalTitle.textContent = 'Add Quick Link';
       if (elements.quickLinkTitleInput) elements.quickLinkTitleInput.value = '';
       if (elements.quickLinkUrlInput) elements.quickLinkUrlInput.value = '';
       if (elements.saveQuickLinkModalBtn) elements.saveQuickLinkModalBtn.textContent = 'Save Link';
+      if (elements.deleteQuickLinkModalBtn) elements.deleteQuickLinkModalBtn.classList.add('hidden');
     }
 
     elements.quickLinkModal.classList.remove('hidden');
@@ -1793,6 +1868,7 @@
     }
     if (elements.quickLinkTitleInput) elements.quickLinkTitleInput.value = '';
     if (elements.quickLinkUrlInput) elements.quickLinkUrlInput.value = '';
+    if (elements.deleteQuickLinkModalBtn) elements.deleteQuickLinkModalBtn.classList.add('hidden');
     state.editingQuickLinkId = null;
   }
 
@@ -1986,21 +2062,9 @@
 
     // Quick Links Sidebar event bindings
     if (elements.quickLinksToggleBtn) {
-      // Hover on floating toggle handle opens sidebar
-      elements.quickLinksToggleBtn.addEventListener('mouseenter', () => {
-        openQuickLinksSidebar();
-      });
-      elements.quickLinksToggleBtn.addEventListener('mouseleave', () => {
-        scheduleCloseQuickLinksSidebar(350);
-      });
-      // Click toggle
       elements.quickLinksToggleBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        if (elements.quickLinksSidebar && elements.quickLinksSidebar.classList.contains('open')) {
-          closeQuickLinksSidebar();
-        } else {
-          openQuickLinksSidebar();
-        }
+        toggleQuickLinksSidebar();
       });
     }
 
@@ -2022,6 +2086,13 @@
       elements.pinQuickLinksBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         toggleQuickLinksPinned();
+      });
+    }
+
+    if (elements.toggleManageQuickLinksBtn) {
+      elements.toggleManageQuickLinksBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleQuickLinksManageMode();
       });
     }
 
@@ -2051,6 +2122,15 @@
       elements.cancelQuickLinkModalBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         closeQuickLinkModal();
+      });
+    }
+
+    if (elements.deleteQuickLinkModalBtn) {
+      elements.deleteQuickLinkModalBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (state.editingQuickLinkId) {
+          deleteQuickLink(state.editingQuickLinkId);
+        }
       });
     }
 

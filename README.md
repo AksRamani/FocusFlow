@@ -51,12 +51,15 @@ A clean, minimalist dark-themed to-do list and Kanban board task manager that tr
   - **Download .md:** Save the report as `daily-report-YYYY-MM-DD.md` directly to your computer.
 
 ### 🔗 Quick Links Right Sidebar (Icon Dock & Drag-and-Drop Reordering)
+- **Navbar Quick Links Button:** Moved right next to the **New Task** button in the header; clicking it toggles the Quick Links sidebar open and closed (`L`).
 - **Slim Icon-Only Rail/Dock:** A sleek 56px vertical icon dock pinned or flying out from the right edge, displaying only link icons (clean 38x38 squircle favicons with fallbacks) to preserve maximum board space.
+- **Easy Edit & Remove:**
+  - **Manage Mode (`✎`):** Toggle the pencil icon in the dock header to display one-click delete (`✕`) and edit (`✎`) badges on all icons.
+  - **Right-Click to Edit:** Right-clicking any quick link icon instantly opens the Edit modal.
+  - **In-Modal Delete:** When editing any link, a dedicated **Delete** button allows immediate removal.
+  - **Hover Popover Actions:** Moving over an icon reveals a stable floating popover with Copy URL (`📋`), Edit (`✎`), and Remove (`✕`) actions.
 - **Move Quick Link Icons via Drag & Drop:** Freely rearrange bookmark icons in any order with intuitive drag-and-drop and glowing insertion indicators; your custom arrangement automatically persists across sessions.
-- **Open on Hover or Click:** Hovering over the floating right-edge link icon smoothly slides open the dock; hovering out gently closes it.
 - **Always Open (Pin Mode):** Click the pin button (`📌`) at the top of the dock to keep it permanently pinned; the Kanban board automatically adjusts padding on desktop screens.
-- **Hover Popover with Actions:** Hovering over any link icon reveals a floating popover to the left showing full site title, hostname, one-click copy URL button (`📋`), edit button (`✎`), and delete button (`✕`).
-- **Modal Add & Edit Links:** Clean, focused modal to add or edit bookmarks with automatic URL normalization.
 - **High-Res Favicons & Avatars:** Automatically fetches real-time site favicons with clean letter-avatar fallbacks.
 - **Persistent Storage:** Bookmarks, custom icon order, and pin preference are saved locally on your device.
 

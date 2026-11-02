@@ -1592,68 +1592,22 @@ body {
 }
 
 /* ============================================================
-   Quick Links Right Sidebar
+   Quick Links Right Sidebar & Header Button
    ============================================================ */
 
-/* Floating Toggle Handle */
-.quick-links-toggle-btn {
-  position: fixed;
-  right: 0;
-  top: 48%;
-  transform: translateY(-50%);
-  z-index: 900;
+/* Header Navigation Button */
+.quick-links-nav-btn {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  padding: 8px 10px 8px 12px;
-  background: rgba(30, 41, 59, 0.92);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(99, 102, 241, 0.35);
-  border-right: none;
-  border-radius: var(--radius-full) 0 0 var(--radius-full);
-  color: #e2e8f0;
-  font-size: 0.76rem;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: -4px 6px 20px rgba(0, 0, 0, 0.45);
-  transition: all var(--transition-normal);
-  user-select: none;
+  position: relative;
+  transition: all var(--transition-fast);
 }
 
-.quick-links-toggle-btn:hover {
-  background: rgba(45, 55, 72, 0.95);
+.quick-links-nav-btn.active {
+  background: rgba(99, 102, 241, 0.22);
   border-color: var(--accent-primary);
-  color: #ffffff;
-  padding-left: 15px;
-  box-shadow: -6px 8px 24px rgba(99, 102, 241, 0.35);
-}
-
-.quick-links-toggle-btn .toggle-icon {
-  width: 15px;
-  height: 15px;
-  color: #a5b4fc;
-  flex-shrink: 0;
-}
-
-.quick-links-toggle-btn .toggle-label {
-  letter-spacing: 0.02em;
-}
-
-.quick-links-toggle-btn .toggle-count-badge {
-  background: rgba(99, 102, 241, 0.25);
   color: #c7d2fe;
-  font-size: 0.68rem;
-  padding: 1px 6px;
-  border-radius: var(--radius-full);
-  font-weight: 700;
-  border: 1px solid rgba(99, 102, 241, 0.4);
-}
-
-/* Hide toggle handle when sidebar is pinned */
-body.quicklinks-pinned .quick-links-toggle-btn {
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(-50%) translateX(100%);
 }
 
 /* Right Sidebar: Icon Only Dock */
@@ -1727,6 +1681,18 @@ body.quicklinks-pinned .quick-links-toggle-btn {
   background: rgba(99, 102, 241, 0.25);
   border-color: var(--accent-primary);
   color: #a5b4fc;
+}
+
+.dock-control-btn.manage-btn:hover {
+  background: rgba(99, 102, 241, 0.2);
+  border-color: rgba(99, 102, 241, 0.4);
+  color: #a5b4fc;
+}
+
+.dock-control-btn.manage-btn.active {
+  background: rgba(239, 68, 68, 0.25);
+  border-color: rgba(239, 68, 68, 0.5);
+  color: #fca5a5;
 }
 
 .dock-control-btn.add-link-btn:hover {
@@ -1878,10 +1844,81 @@ body.quicklinks-pinned .quick-links-toggle-btn {
   pointer-events: none;
 }
 
+/* Quick Link Action Badges (for Direct Edit & Remove) */
+.quick-link-action-badge {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-radius: var(--radius-full);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  font-weight: 700;
+  cursor: pointer;
+  z-index: 20;
+  border: 1.5px solid #0f172a;
+  transition: transform var(--transition-fast), background var(--transition-fast);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+  user-select: none;
+}
+
+.quick-link-action-badge:hover {
+  transform: scale(1.22);
+}
+
+.quick-link-delete-badge {
+  top: -4px;
+  right: -4px;
+  background: #ef4444;
+  color: #ffffff;
+}
+
+.quick-link-delete-badge:hover {
+  background: #dc2626;
+}
+
+.quick-link-edit-badge {
+  bottom: -4px;
+  right: -4px;
+  background: #6366f1;
+  color: #ffffff;
+  font-size: 0.68rem;
+}
+
+.quick-link-edit-badge:hover {
+  background: #4f46e5;
+}
+
+/* Manage Mode on Dock */
+.quick-links-sidebar.manage-mode .quick-link-action-badge {
+  display: flex;
+}
+
+.quick-links-sidebar.manage-mode .quick-link-icon-item {
+  animation: subtleWiggle 1.4s ease-in-out infinite alternate;
+}
+
+@keyframes subtleWiggle {
+  0% { transform: rotate(0deg); }
+  25% { transform: rotate(1.2deg); }
+  75% { transform: rotate(-1.2deg); }
+  100% { transform: rotate(0deg); }
+}
+
+.quick-links-sidebar.manage-mode .quick-link-icon-btn {
+  border-color: rgba(99, 102, 241, 0.65);
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
+}
+
+.quick-links-sidebar.manage-mode .quick-link-popover {
+  display: none !important;
+}
+
 /* Floating Popover on Hover (positioned to the left of the dock) */
 .quick-link-popover {
   position: absolute;
-  right: calc(100% + 12px);
+  right: calc(100% + 10px);
   top: 50%;
   transform: translateY(-50%) translateX(6px);
   background: rgba(15, 23, 42, 0.96);
@@ -1889,7 +1926,7 @@ body.quicklinks-pinned .quick-links-toggle-btn {
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   padding: 8px 10px;
-  min-width: 170px;
+  min-width: 175px;
   max-width: 240px;
   box-shadow: -6px 8px 24px rgba(0, 0, 0, 0.6);
   pointer-events: none;
@@ -1900,6 +1937,18 @@ body.quicklinks-pinned .quick-links-toggle-btn {
   display: flex;
   flex-direction: column;
   gap: 6px;
+}
+
+/* Hover bridge: keeps popover open when moving mouse from icon across gap */
+.quick-link-popover::before {
+  content: '';
+  position: absolute;
+  top: -12px;
+  bottom: -12px;
+  right: -24px;
+  width: 30px;
+  background: transparent;
+  pointer-events: auto;
 }
 
 /* Right-pointing triangle arrow */
