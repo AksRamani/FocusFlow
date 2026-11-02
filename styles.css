@@ -781,6 +781,23 @@ body {
   color: #ffffff;
 }
 
+.pr-action-btn.copy-pr-btn:hover {
+  color: #34d399;
+  background: rgba(52, 211, 153, 0.15);
+}
+
+.pr-action-btn.copy-pr-btn.copied {
+  color: #34d399;
+  background: rgba(52, 211, 153, 0.25);
+}
+
+.pr-btn-icon {
+  width: 10px;
+  height: 10px;
+  display: block;
+  flex-shrink: 0;
+}
+
 .pr-action-btn.remove-pr-btn:hover {
   color: var(--prio-urgent-text);
 }
@@ -1496,6 +1513,41 @@ body {
   width: 10px;
   height: 10px;
   opacity: 0.7;
+}
+
+.report-pr-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.report-copy-pr-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  font-size: 0.72rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.report-copy-pr-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.report-copy-pr-btn.copied {
+  background: rgba(52, 211, 153, 0.18);
+  border-color: var(--status-done);
+  color: #34d399;
 }
 
 .report-empty-notice {

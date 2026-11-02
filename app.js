@@ -262,6 +262,9 @@
                 <path d="M3 5a2 2 0 00-2 2v6a2 2 0 002 2h6a2 2 0 002-2V9.5a.5.5 0 00-1 0V13a1 1 0 01-1 1H3a1 1 0 01-1-1V7a1 1 0 011-1h3.5a.5.5 0 000-1H3z"/>
               </svg>
             </a>
+            <button class="pr-action-btn copy-pr-btn" data-action="copy-pr" title="Copy PR link">
+              ${PR_COPY_ICON_SVG}
+            </button>
             <button class="pr-action-btn edit-pr-btn" data-action="edit-pr" title="Edit PR link">✎</button>
             <button class="pr-action-btn remove-pr-btn" data-action="remove-pr" title="Remove PR link">✕</button>
           </div>
@@ -348,6 +351,25 @@
     if (prLinkEl) {
       prLinkEl.addEventListener('click', (e) => {
         e.stopPropagation();
+      });
+    }
+
+    const copyPrBtn = card.querySelector('[data-action="copy-pr"]');
+    if (copyPrBtn) {
+      copyPrBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const url = normalizeUrl(task.prLink);
+        const ok = await copyTextToClipboard(url);
+        if (ok) {
+          copyPrBtn.classList.add('copied');
+          copyPrBtn.setAttribute('title', 'Copied!');
+          copyPrBtn.innerHTML = PR_CHECK_ICON_SVG;
+          setTimeout(() => {
+            copyPrBtn.classList.remove('copied');
+            copyPrBtn.setAttribute('title', 'Copy PR link');
+            copyPrBtn.innerHTML = PR_COPY_ICON_SVG;
+          }, 1500);
+        }
       });
     }
 
@@ -869,6 +891,50 @@
     return trimmed;
   }
 
+  // PR icon constants
+  const PR_COPY_ICON_SVG = `<svg class="pr-btn-icon" viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z"></path><path fill-rule="evenodd" d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z"></path></svg>`;
+  const PR_CHECK_ICON_SVG = `<svg class="pr-btn-icon" viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" d="M13.78 4.22a.75.75 0 010 1.06l-7.25 7.25a.75.75 0 01-1.06 0L2.22 9.28a.75.75 0 011.06-1.06L6 10.94l6.72-6.72a.75.75 0 011.06 0z"></path></svg>`;
+
+  let copyFeedbackTimer = null;
+  function showCopyFeedback(msg = 'Copied to clipboard!') {
+    if (!elements.copyToast) return;
+    elements.copyToast.textContent = `✓ ${msg}`;
+    elements.copyToast.classList.remove('hidden');
+    if (copyFeedbackTimer) clearTimeout(copyFeedbackTimer);
+    copyFeedbackTimer = setTimeout(() => {
+      elements.copyToast.classList.add('hidden');
+    }, 2500);
+  }
+
+  async function copyTextToClipboard(text) {
+    if (!text) return false;
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(text);
+        return true;
+      }
+      throw new Error('Clipboard API unavailable');
+    } catch (err) {
+      try {
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.top = '0';
+        textArea.style.left = '0';
+        textArea.style.opacity = '0';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        const success = document.execCommand('copy');
+        document.body.removeChild(textArea);
+        return success;
+      } catch (fallbackErr) {
+        console.error('Clipboard copy fallback failed:', fallbackErr);
+        return false;
+      }
+    }
+  }
+
   function getPrDisplayText(url) {
     if (!url) return '';
     const trimmed = url.trim();
@@ -1045,16 +1111,22 @@
                 </div>
                 <div class="report-task-actions">
                   ${hasPr ? `
-                    <a href="${escapeHtml(prUrl)}" target="_blank" rel="noopener noreferrer" class="report-pr-badge" title="${escapeHtml(t.prLink)}">
-                      <svg class="pr-icon" viewBox="0 0 16 16" fill="currentColor">
-                        <path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v7.256A2.246 2.246 0 0111.75 14a2.25 2.25 0 112.25-2.25c0-.414-.336-.75-.75-.75h-1V5a2.5 2.5 0 00-2.5-2.5zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5zm8.5 0a.75.75 0 100 1.5.75.75 0 000-1.5z"></path>
-                      </svg>
-                      <span>${escapeHtml(prDisplay)}</span>
-                      <svg class="pr-external-icon" viewBox="0 0 16 16" fill="currentColor">
-                        <path d="M8.636 3.5a.5.5 0 00-.5.5v1a.5.5 0 00.5.5h1.793L5.146 10.793a.5.5 0 00.708.708L11.146 6.207v1.793a.5.5 0 00.5.5h1a.5.5 0 00.5-.5v-4.5a.5.5 0 00-.5-.5h-4.5z"/>
-                        <path d="M3 5a2 2 0 00-2 2v6a2 2 0 002 2h6a2 2 0 002-2V9.5a.5.5 0 00-1 0V13a1 1 0 01-1 1H3a1 1 0 01-1-1V7a1 1 0 011-1h3.5a.5.5 0 000-1H3z"/>
-                      </svg>
-                    </a>
+                    <div class="report-pr-group">
+                      <a href="${escapeHtml(prUrl)}" target="_blank" rel="noopener noreferrer" class="report-pr-badge" title="${escapeHtml(t.prLink)}">
+                        <svg class="pr-icon" viewBox="0 0 16 16" fill="currentColor">
+                          <path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v7.256A2.246 2.246 0 0111.75 14a2.25 2.25 0 112.25-2.25c0-.414-.336-.75-.75-.75h-1V5a2.5 2.5 0 00-2.5-2.5zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5zm8.5 0a.75.75 0 100 1.5.75.75 0 000-1.5z"></path>
+                        </svg>
+                        <span>${escapeHtml(prDisplay)}</span>
+                        <svg class="pr-external-icon" viewBox="0 0 16 16" fill="currentColor">
+                          <path d="M8.636 3.5a.5.5 0 00-.5.5v1a.5.5 0 00.5.5h1.793L5.146 10.793a.5.5 0 00.708.708L11.146 6.207v1.793a.5.5 0 00.5.5h1a.5.5 0 00.5-.5v-4.5a.5.5 0 00-.5-.5h-4.5z"/>
+                          <path d="M3 5a2 2 0 00-2 2v6a2 2 0 002 2h6a2 2 0 002-2V9.5a.5.5 0 00-1 0V13a1 1 0 01-1 1H3a1 1 0 01-1-1V7a1 1 0 011-1h3.5a.5.5 0 000-1H3z"/>
+                        </svg>
+                      </a>
+                      <button class="report-copy-pr-btn" data-pr-url="${escapeHtml(prUrl)}" title="Copy PR link">
+                        ${PR_COPY_ICON_SVG}
+                        <span>Copy</span>
+                      </button>
+                    </div>
                   ` : `
                     <button class="add-pr-btn report-add-pr-btn" data-task-id="${t.id}" title="Add PR link for this completed task">
                       <svg class="pr-icon" viewBox="0 0 16 16" fill="currentColor">
@@ -1101,16 +1173,22 @@
                 </div>
                 <div class="report-task-actions">
                   ${hasPr ? `
-                    <a href="${escapeHtml(prUrl)}" target="_blank" rel="noopener noreferrer" class="report-pr-badge" title="${escapeHtml(t.prLink)}">
-                      <svg class="pr-icon" viewBox="0 0 16 16" fill="currentColor">
-                        <path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v7.256A2.246 2.246 0 0111.75 14a2.25 2.25 0 112.25-2.25c0-.414-.336-.75-.75-.75h-1V5a2.5 2.5 0 00-2.5-2.5zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5zm8.5 0a.75.75 0 100 1.5.75.75 0 000-1.5z"></path>
-                      </svg>
-                      <span>${escapeHtml(prDisplay)}</span>
-                      <svg class="pr-external-icon" viewBox="0 0 16 16" fill="currentColor">
-                        <path d="M8.636 3.5a.5.5 0 00-.5.5v1a.5.5 0 00.5.5h1.793L5.146 10.793a.5.5 0 00.708.708L11.146 6.207v1.793a.5.5 0 00.5.5h1a.5.5 0 00.5-.5v-4.5a.5.5 0 00-.5-.5h-4.5z"/>
-                        <path d="M3 5a2 2 0 00-2 2v6a2 2 0 002 2h6a2 2 0 002-2V9.5a.5.5 0 00-1 0V13a1 1 0 01-1 1H3a1 1 0 01-1-1V7a1 1 0 011-1h3.5a.5.5 0 000-1H3z"/>
-                      </svg>
-                    </a>
+                    <div class="report-pr-group">
+                      <a href="${escapeHtml(prUrl)}" target="_blank" rel="noopener noreferrer" class="report-pr-badge" title="${escapeHtml(t.prLink)}">
+                        <svg class="pr-icon" viewBox="0 0 16 16" fill="currentColor">
+                          <path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v7.256A2.246 2.246 0 0111.75 14a2.25 2.25 0 112.25-2.25c0-.414-.336-.75-.75-.75h-1V5a2.5 2.5 0 00-2.5-2.5zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5zm8.5 0a.75.75 0 100 1.5.75.75 0 000-1.5z"></path>
+                        </svg>
+                        <span>${escapeHtml(prDisplay)}</span>
+                        <svg class="pr-external-icon" viewBox="0 0 16 16" fill="currentColor">
+                          <path d="M8.636 3.5a.5.5 0 00-.5.5v1a.5.5 0 00.5.5h1.793L5.146 10.793a.5.5 0 00.708.708L11.146 6.207v1.793a.5.5 0 00.5.5h1a.5.5 0 00.5-.5v-4.5a.5.5 0 00-.5-.5h-4.5z"/>
+                          <path d="M3 5a2 2 0 00-2 2v6a2 2 0 002 2h6a2 2 0 002-2V9.5a.5.5 0 00-1 0V13a1 1 0 01-1 1H3a1 1 0 01-1-1V7a1 1 0 011-1h3.5a.5.5 0 000-1H3z"/>
+                        </svg>
+                      </a>
+                      <button class="report-copy-pr-btn" data-pr-url="${escapeHtml(prUrl)}" title="Copy PR link">
+                        ${PR_COPY_ICON_SVG}
+                        <span>Copy</span>
+                      </button>
+                    </div>
                   ` : ''}
                 </div>
               </div>
@@ -1167,6 +1245,24 @@
       });
     });
 
+    // Attach listeners to copy PR buttons inside the report view
+    elements.reportFormattedContainer.querySelectorAll('.report-copy-pr-btn').forEach((btn) => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const prUrl = btn.dataset.prUrl;
+        const ok = await copyTextToClipboard(prUrl);
+        if (ok) {
+          btn.classList.add('copied');
+          btn.innerHTML = `${PR_CHECK_ICON_SVG}<span>Copied!</span>`;
+          showCopyFeedback('PR link copied to clipboard!');
+          setTimeout(() => {
+            btn.classList.remove('copied');
+            btn.innerHTML = `${PR_COPY_ICON_SVG}<span>Copy</span>`;
+          }, 1500);
+        }
+      });
+    });
+
     // Populate markdown text
     const md = generateMarkdownReport(data);
     elements.reportMarkdownText.value = md;
@@ -1212,21 +1308,15 @@
   async function copyReportToClipboard() {
     const data = getDailyReportData();
     const md = generateMarkdownReport(data);
-    try {
-      await navigator.clipboard.writeText(md);
-      elements.copyToast.classList.remove('hidden');
-      setTimeout(() => {
-        elements.copyToast.classList.add('hidden');
-      }, 2500);
-    } catch (err) {
+    const ok = await copyTextToClipboard(md);
+    if (ok) {
+      showCopyFeedback('Report copied to clipboard!');
+    } else {
       // Fallback
       setReportViewMode('markdown');
       elements.reportMarkdownText.select();
       document.execCommand('copy');
-      elements.copyToast.classList.remove('hidden');
-      setTimeout(() => {
-        elements.copyToast.classList.add('hidden');
-      }, 2500);
+      showCopyFeedback('Report copied to clipboard!');
     }
   }
 

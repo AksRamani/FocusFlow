@@ -25,9 +25,10 @@ A clean, minimalist dark-themed to-do list and Kanban board task manager that tr
 - Change priorities (**Urgent**, **High**, **Medium**, **Low**) with a **single selection** directly on the card without repeatedly clicking to cycle.
 - Styled as a compact dark-theme pill with priority indicator dots (`●`) and colors.
 
-### 🔗 Pull Request (PR) Link Tracking for Done Tasks
+### 🔗 Pull Request (PR) Link Tracking & One-Click Copy for Done Tasks
 - **Track Finished Work:** Add GitHub, GitLab, or Bitbucket PR links directly to completed tasks.
-- **On-Card PR Badge:** Displays an interactive PR pill (e.g. `PR #42`) with external link navigation (`target="_blank"`), plus quick edit (`✎`) and delete (`✕`) controls.
+- **One-Click Copy PR Link:** Instantly copy any attached PR link directly from the card's PR pill or within the Daily Status Report modal with instant checkmark feedback.
+- **On-Card PR Badge:** Displays an interactive PR pill (e.g. `PR #42`) with external link navigation (`target="_blank"`), one-click copy button, plus quick edit (`✎`) and delete (`✕`) controls.
 - **Quick `+ Add PR` Button:** Easily attach a PR link to any Done task with one click without opening the full edit modal.
 - **Automatic URL Normalization:** Handles full URLs, repository paths, and PR numbers.
 
