@@ -9,7 +9,7 @@ A clean, minimalist dark-themed to-do list and Kanban board task manager that tr
 ### 📌 Kanban View & Focused Single Tabs
 - **3-Column Visual Board:** Seamlessly manage workflow across **To Do**, **In Progress**, and **Done**.
 - **Single-Tab Focus Mode:** Switch between the full Kanban board view or dedicated single-column views with live task counts.
-- **Ambient Clock & Progress Meter:** Features a live digital clock, formatted date, and a visual task completion bar showing percentage progress.
+- **Ambient Clock with Seconds & Progress Meter:** Features a live digital clock showing hours, minutes, and seconds (`HH:MM:SS`), formatted date, and a visual completion bar with percentage progress.
 
 ### 📥 Bulk Task Import (Smart Parsing)
 - **Paste Lists in Bulk:** Import dozens of tasks at once with keyboard shortcut `B` or the **Bulk Add** button.
@@ -50,6 +50,15 @@ A clean, minimalist dark-themed to-do list and Kanban board task manager that tr
   - **Copy Report:** One-click copy formatted in Markdown, ready to paste directly into Slack, Teams, Jira, or email (with visual toast confirmation).
   - **Download .md:** Save the report as `daily-report-YYYY-MM-DD.md` directly to your computer.
 
+### 🔗 Quick Links Right Sidebar (Hover & Pin Modes)
+- **Open on Hover of Icon:** Hovering over the floating icon tab on the right edge smoothly expands the Quick Links sidebar.
+- **Always Open (Pin Mode):** Click the pin button (`📌`) in the sidebar header to keep it permanently docked and open. Wide screen layouts automatically adjust to prevent obscuring board tasks.
+- **Add, Edit & Delete Links:** Bookmark frequently used development sites, tools, and repositories with title and URL.
+- **High-Res Favicons & Avatars:** Automatically fetches real-time site favicons with clean letter-avatar fallbacks.
+- **One-Click URL Copy:** Copy any bookmark link directly with instant checkmark confirmation.
+- **Inline Search:** Quickly filter and find links with the dedicated sidebar search input.
+- **Persistent Storage:** Bookmarks and pin preference are saved locally on your device.
+
 ### 🔍 Search & Priority Filtering
 - Instant keyword search across task titles and notes with clear button.
 - Filter tasks by priority dropdown (**All**, **Urgent**, **High**, **Medium**, **Low**).
@@ -67,6 +76,7 @@ A clean, minimalist dark-themed to-do list and Kanban board task manager that tr
 | `N` | Open **New Task** modal |
 | `B` | Open **Bulk Add** modal |
 | `R` | Open **Daily Report** modal |
+| `L` | Toggle **Quick Links** right sidebar |
 | `Esc` | Close active modal / clear search |
 | `Ctrl + Enter` / `Cmd + Enter` | Save and submit active modal |
 
