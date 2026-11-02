@@ -288,6 +288,10 @@ body {
   background: var(--bg-surface);
   color: var(--text-primary);
 }
+#clearAllBtn:hover {
+  color: var(--prio-urgent-text);
+  background: rgba(239, 68, 68, 0.12);
+}
 
 /* ============================================================
    Navigation Tabs & Filters

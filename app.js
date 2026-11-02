@@ -66,8 +66,7 @@
     searchInput: document.getElementById('searchInput'),
     clearSearchBtn: document.getElementById('clearSearchBtn'),
     priorityFilter: document.getElementById('priorityFilter'),
-    clearCompletedBtn: document.getElementById('clearCompletedBtn'),
-    clearDoneColBtn: document.getElementById('clearDoneColBtn'),
+    clearAllBtn: document.getElementById('clearAllBtn'),
     boardContainer: document.getElementById('boardContainer'),
     viewTabBtns: document.querySelectorAll('.tab-btn'),
     // Modals
@@ -510,15 +509,35 @@
     }
   }
 
-  function clearCompletedTasks() {
-    const completedCount = state.tasks.filter((t) => t.status === 'done').length;
-    if (completedCount === 0) {
-      alert('There are no completed tasks in the Done column to clear.');
+  function clearColumnTasks(status) {
+    const columnNames = {
+      'todo': 'To Do',
+      'in-progress': 'In Progress',
+      'done': 'Done'
+    };
+    const colName = columnNames[status] || status;
+    const count = state.tasks.filter((t) => t.status === status).length;
+    if (count === 0) {
+      alert(`There are no tasks in the ${colName} column to clear.`);
       return;
     }
 
-    if (confirm(`Clear all ${completedCount} completed task(s) from the Done column?`)) {
-      state.tasks = state.tasks.filter((t) => t.status !== 'done');
+    if (confirm(`Clear all ${count} task(s) from the ${colName} column?`)) {
+      state.tasks = state.tasks.filter((t) => t.status !== status);
+      Storage.saveTasks(state.tasks);
+      render();
+    }
+  }
+
+  function clearAllTasks() {
+    const total = state.tasks.length;
+    if (total === 0) {
+      alert('There are no tasks to clear.');
+      return;
+    }
+
+    if (confirm(`Are you sure you want to delete all ${total} task(s) across all columns? This action cannot be undone.`)) {
+      state.tasks = [];
       Storage.saveTasks(state.tasks);
       render();
     }
@@ -1248,10 +1267,16 @@
       });
     });
 
-    // Clear column button for Done tasks
-    if (elements.clearDoneColBtn) {
-      elements.clearDoneColBtn.addEventListener('click', clearCompletedTasks);
-    }
+    // Clear column buttons for each of the 3 columns
+    document.querySelectorAll('.clear-col-btn').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const status = btn.dataset.status;
+        if (status) {
+          clearColumnTasks(status);
+        }
+      });
+    });
 
     // Daily Report modal triggers
     if (elements.openReportBtn) {
@@ -1308,7 +1333,9 @@
       render();
     });
 
-    elements.clearCompletedBtn.addEventListener('click', clearCompletedTasks);
+    if (elements.clearAllBtn) {
+      elements.clearAllBtn.addEventListener('click', clearAllTasks);
+    }
 
     // Backdrop click to close modals
     [elements.bulkAddModal, elements.taskModal, elements.reportModal].forEach((modal) => {

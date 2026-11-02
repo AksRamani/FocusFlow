@@ -31,9 +31,9 @@ A clean, minimalist dark-themed to-do list and Kanban board task manager that tr
 - **Quick `+ Add PR` Button:** Easily attach a PR link to any Done task with one click without opening the full edit modal.
 - **Automatic URL Normalization:** Handles full URLs, repository paths, and PR numbers.
 
-### 🗑️ Clear Done Column
-- Dedicated **Clear** button directly in the **Done** column header to flush completed tasks.
-- Prompts for confirmation to prevent accidental loss of data.
+### 🗑️ Clear Column & Clear All Controls
+- **Clear Individual Columns:** Dedicated **Clear** buttons directly in each column header (**To Do**, **In Progress**, and **Done**) to wipe tasks in that specific column with confirmation.
+- **Global Clear All Button:** A prominent **Clear All** button in the navigation bar to delete all tasks across all columns in one clean action with confirmation protection.
 
 ### 📋 End-of-Day Daily Status Report Generator
 - **One-Click Report Generation (`R`):** Click the **Daily Report** button in the header to generate a clean daily summary of all tasks.

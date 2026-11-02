@@ -95,8 +95,8 @@
           <option value="low">Low</option>
         </select>
 
-        <button id="clearCompletedBtn" class="btn btn-ghost" title="Clear all tasks marked done">
-          Clear Completed
+        <button id="clearAllBtn" class="btn btn-ghost" title="Delete all tasks across all columns">
+          Clear All
         </button>
       </div>
     </nav>
@@ -111,7 +111,15 @@
             <h2 class="column-title">To Do</h2>
             <span class="column-badge" id="badge-todo">0</span>
           </div>
-          <button class="quick-add-btn" data-status="todo" title="Add to To-Do">+</button>
+          <div class="col-header-actions">
+            <button class="clear-col-btn" data-status="todo" title="Clear all tasks in To Do column">
+              <svg class="icon-trash" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+              </svg>
+              <span>Clear</span>
+            </button>
+            <button class="quick-add-btn" data-status="todo" title="Add to To-Do">+</button>
+          </div>
         </div>
         <div class="card-list" id="list-todo" data-status="todo">
           <!-- Cards injected here -->
@@ -129,7 +137,15 @@
             <h2 class="column-title">In Progress</h2>
             <span class="column-badge" id="badge-in-progress">0</span>
           </div>
-          <button class="quick-add-btn" data-status="in-progress" title="Add to In Progress">+</button>
+          <div class="col-header-actions">
+            <button class="clear-col-btn" data-status="in-progress" title="Clear all tasks in In Progress column">
+              <svg class="icon-trash" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+              </svg>
+              <span>Clear</span>
+            </button>
+            <button class="quick-add-btn" data-status="in-progress" title="Add to In Progress">+</button>
+          </div>
         </div>
         <div class="card-list" id="list-in-progress" data-status="in-progress">
           <!-- Cards injected here -->
@@ -148,7 +164,7 @@
             <span class="column-badge" id="badge-done">0</span>
           </div>
           <div class="col-header-actions">
-            <button class="clear-col-btn" id="clearDoneColBtn" title="Clear all tasks in Done column">
+            <button class="clear-col-btn" data-status="done" id="clearDoneColBtn" title="Clear all tasks in Done column">
               <svg class="icon-trash" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
               </svg>
