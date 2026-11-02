@@ -384,73 +384,63 @@
     </div>
   </div>
 
-  <!-- Right Sidebar: Quick Links Floating Toggle Handle -->
+  <!-- Right Sidebar: Quick Links Floating Toggle Handle (Icon Only) -->
   <button id="quickLinksToggleBtn" class="quick-links-toggle-btn" title="Quick Links (Hover or click to open)" aria-label="Open Quick Links">
     <svg class="toggle-icon" viewBox="0 0 20 20" fill="currentColor">
       <path fill-rule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clip-rule="evenodd"/>
     </svg>
-    <span class="toggle-label">Quick Links</span>
     <span id="quickLinksCountBadge" class="toggle-count-badge">0</span>
   </button>
 
-  <!-- Right Sidebar Drawer -->
-  <aside id="quickLinksSidebar" class="quick-links-sidebar" aria-label="Quick Links Sidebar">
-    <div class="sidebar-header">
-      <div class="sidebar-title-group">
-        <svg class="sidebar-title-icon" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clip-rule="evenodd"/>
+  <!-- Right Sidebar: Icon Only Dock -->
+  <aside id="quickLinksSidebar" class="quick-links-sidebar icon-dock" aria-label="Quick Links Sidebar">
+    <div class="dock-header">
+      <button id="pinQuickLinksBtn" class="dock-control-btn" title="Keep sidebar always open (Pin)" aria-label="Always open sidebar">
+        <svg class="dock-control-icon" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z"/>
         </svg>
-        <h2 class="sidebar-title">Quick Links</h2>
-      </div>
-      <div class="sidebar-controls">
-        <button id="pinQuickLinksBtn" class="sidebar-control-btn" title="Keep always open (Pinned)" aria-label="Always open sidebar">
-          <svg class="pin-icon" viewBox="0 0 20 20" fill="currentColor">
-            <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z"/>
-          </svg>
-        </button>
-        <button id="closeQuickLinksBtn" class="sidebar-control-btn close-btn" title="Close sidebar" aria-label="Close sidebar">&times;</button>
-      </div>
-    </div>
-
-    <!-- Quick Links Actions Bar -->
-    <div class="sidebar-actions-bar">
-      <button id="openAddQuickLinkBtn" class="btn btn-primary add-quick-link-btn" title="Add a new quick link">
-        <svg class="icon" viewBox="0 0 20 20" fill="currentColor">
+      </button>
+      <button id="openAddQuickLinkBtn" class="dock-control-btn add-link-btn" title="Add Quick Link" aria-label="Add quick link">
+        <svg class="dock-control-icon" viewBox="0 0 20 20" fill="currentColor">
           <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
         </svg>
-        Add Link
       </button>
-      <div class="sidebar-search-wrap">
-        <input type="text" id="quickLinksSearchInput" class="sidebar-search-input" placeholder="Filter links...">
-      </div>
+      <button id="closeQuickLinksBtn" class="dock-control-btn close-btn" title="Close sidebar" aria-label="Close sidebar">&times;</button>
     </div>
 
-    <!-- Add / Edit Form (Collapsible) -->
-    <div id="quickLinkFormContainer" class="quick-link-form-container hidden">
-      <form id="quickLinkForm" class="quick-link-form">
-        <div class="form-header-row">
-          <h3 id="quickLinkFormHeading" class="form-subheading">Add New Link</h3>
+    <div class="dock-divider"></div>
+
+    <!-- Quick Links List Container (Draggable Link Icons Only) -->
+    <div id="quickLinksList" class="quick-links-dock-list">
+      <!-- Dynamic Quick Link Icon Items -->
+    </div>
+  </aside>
+
+  <!-- Add/Edit Quick Link Modal -->
+  <div id="quickLinkModal" class="modal-overlay hidden">
+    <div class="modal-card modal-sm">
+      <div class="modal-header">
+        <h3 id="quickLinkModalTitle">Add Quick Link</h3>
+        <button type="button" class="modal-close-btn" id="closeQuickLinkModalBtn">&times;</button>
+      </div>
+      <form id="quickLinkForm">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="quickLinkTitleInput">Title *</label>
+            <input type="text" id="quickLinkTitleInput" class="input-control" placeholder="e.g. GitHub" required autocomplete="off">
+          </div>
+          <div class="form-group">
+            <label for="quickLinkUrlInput">URL *</label>
+            <input type="text" id="quickLinkUrlInput" class="input-control" placeholder="e.g. https://github.com or github.com" required autocomplete="off">
+          </div>
         </div>
-        <div class="form-group">
-          <label for="quickLinkTitleInput">Title</label>
-          <input type="text" id="quickLinkTitleInput" class="input-control" placeholder="e.g. GitHub" required autocomplete="off">
-        </div>
-        <div class="form-group">
-          <label for="quickLinkUrlInput">URL</label>
-          <input type="text" id="quickLinkUrlInput" class="input-control" placeholder="e.g. github.com or https://..." required autocomplete="off">
-        </div>
-        <div class="quick-link-form-buttons">
-          <button type="button" id="cancelQuickLinkBtn" class="btn btn-ghost btn-sm">Cancel</button>
-          <button type="submit" id="saveQuickLinkBtn" class="btn btn-primary btn-sm">Save Link</button>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" id="cancelQuickLinkModalBtn">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="saveQuickLinkModalBtn">Save Link</button>
         </div>
       </form>
     </div>
-
-    <!-- Quick Links List Container -->
-    <div id="quickLinksList" class="quick-links-list">
-      <!-- Dynamic Quick Link Items -->
-    </div>
-  </aside>
+  </div>
 
   <script src="app.js"></script>
 </body>

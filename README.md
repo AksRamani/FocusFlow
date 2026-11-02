@@ -50,14 +50,15 @@ A clean, minimalist dark-themed to-do list and Kanban board task manager that tr
   - **Copy Report:** One-click copy formatted in Markdown, ready to paste directly into Slack, Teams, Jira, or email (with visual toast confirmation).
   - **Download .md:** Save the report as `daily-report-YYYY-MM-DD.md` directly to your computer.
 
-### 🔗 Quick Links Right Sidebar (Hover & Pin Modes)
-- **Open on Hover of Icon:** Hovering over the floating icon tab on the right edge smoothly expands the Quick Links sidebar.
-- **Always Open (Pin Mode):** Click the pin button (`📌`) in the sidebar header to keep it permanently docked and open. Wide screen layouts automatically adjust to prevent obscuring board tasks.
-- **Add, Edit & Delete Links:** Bookmark frequently used development sites, tools, and repositories with title and URL.
+### 🔗 Quick Links Right Sidebar (Icon Dock & Drag-and-Drop Reordering)
+- **Slim Icon-Only Rail/Dock:** A sleek 56px vertical icon dock pinned or flying out from the right edge, displaying only link icons (clean 38x38 squircle favicons with fallbacks) to preserve maximum board space.
+- **Move Quick Link Icons via Drag & Drop:** Freely rearrange bookmark icons in any order with intuitive drag-and-drop and glowing insertion indicators; your custom arrangement automatically persists across sessions.
+- **Open on Hover or Click:** Hovering over the floating right-edge link icon smoothly slides open the dock; hovering out gently closes it.
+- **Always Open (Pin Mode):** Click the pin button (`📌`) at the top of the dock to keep it permanently pinned; the Kanban board automatically adjusts padding on desktop screens.
+- **Hover Popover with Actions:** Hovering over any link icon reveals a floating popover to the left showing full site title, hostname, one-click copy URL button (`📋`), edit button (`✎`), and delete button (`✕`).
+- **Modal Add & Edit Links:** Clean, focused modal to add or edit bookmarks with automatic URL normalization.
 - **High-Res Favicons & Avatars:** Automatically fetches real-time site favicons with clean letter-avatar fallbacks.
-- **One-Click URL Copy:** Copy any bookmark link directly with instant checkmark confirmation.
-- **Inline Search:** Quickly filter and find links with the dedicated sidebar search input.
-- **Persistent Storage:** Bookmarks and pin preference are saved locally on your device.
+- **Persistent Storage:** Bookmarks, custom icon order, and pin preference are saved locally on your device.
 
 ### 🔍 Search & Priority Filtering
 - Instant keyword search across task titles and notes with clear button.

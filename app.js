@@ -139,22 +139,22 @@
       reportToggleMarkdown: document.getElementById('reportToggleMarkdown'),
       copyToast: document.getElementById('copyToast'),
 
-      // Quick Links Right Sidebar
+      // Quick Links Right Sidebar & Modal
       quickLinksToggleBtn: document.getElementById('quickLinksToggleBtn'),
       quickLinksCountBadge: document.getElementById('quickLinksCountBadge'),
       quickLinksSidebar: document.getElementById('quickLinksSidebar'),
       pinQuickLinksBtn: document.getElementById('pinQuickLinksBtn'),
       closeQuickLinksBtn: document.getElementById('closeQuickLinksBtn'),
       openAddQuickLinkBtn: document.getElementById('openAddQuickLinkBtn'),
-      quickLinksSearchInput: document.getElementById('quickLinksSearchInput'),
-      quickLinkFormContainer: document.getElementById('quickLinkFormContainer'),
+      quickLinksList: document.getElementById('quickLinksList'),
+      quickLinkModal: document.getElementById('quickLinkModal'),
+      quickLinkModalTitle: document.getElementById('quickLinkModalTitle'),
+      closeQuickLinkModalBtn: document.getElementById('closeQuickLinkModalBtn'),
+      cancelQuickLinkModalBtn: document.getElementById('cancelQuickLinkModalBtn'),
+      saveQuickLinkModalBtn: document.getElementById('saveQuickLinkModalBtn'),
       quickLinkForm: document.getElementById('quickLinkForm'),
-      quickLinkFormHeading: document.getElementById('quickLinkFormHeading'),
       quickLinkTitleInput: document.getElementById('quickLinkTitleInput'),
-      quickLinkUrlInput: document.getElementById('quickLinkUrlInput'),
-      cancelQuickLinkBtn: document.getElementById('cancelQuickLinkBtn'),
-      saveQuickLinkBtn: document.getElementById('saveQuickLinkBtn'),
-      quickLinksList: document.getElementById('quickLinksList')
+      quickLinkUrlInput: document.getElementById('quickLinkUrlInput')
     };
   }
 
@@ -206,7 +206,9 @@
         chrome.storage.local.set({ focusflow_tasks: tasks });
       }
       try {
-        localStorage.setItem('focusflow_tasks', JSON.stringify(tasks));
+        if (typeof localStorage !== 'undefined') {
+          localStorage.setItem('focusflow_tasks', JSON.stringify(tasks));
+        }
       } catch (e) {
         console.error('Failed to save to localStorage:', e);
       }
@@ -258,7 +260,9 @@
         chrome.storage.local.set({ focusflow_quick_links: links });
       }
       try {
-        localStorage.setItem('focusflow_quick_links', JSON.stringify(links));
+        if (typeof localStorage !== 'undefined') {
+          localStorage.setItem('focusflow_quick_links', JSON.stringify(links));
+        }
       } catch (e) {
         console.error('Failed to save quick links:', e);
       }
@@ -305,7 +309,9 @@
         chrome.storage.local.set({ focusflow_sidebar_pinned: Boolean(pinned) });
       }
       try {
-        localStorage.setItem('focusflow_sidebar_pinned', String(Boolean(pinned)));
+        if (typeof localStorage !== 'undefined') {
+          localStorage.setItem('focusflow_sidebar_pinned', String(Boolean(pinned)));
+        }
       } catch (e) {
         console.error('Failed to save sidebar pinned state:', e);
       }
@@ -1556,47 +1562,25 @@
     if (elements.quickLinksSidebar) {
       elements.quickLinksSidebar.classList.remove('open');
     }
-    closeQuickLinkForm();
   }
 
-  function getFilteredQuickLinks() {
-    if (!state.quickLinksSearch.trim()) {
-      return state.quickLinks;
-    }
-    const q = state.quickLinksSearch.toLowerCase();
-    return state.quickLinks.filter((l) => {
-      const matchTitle = (l.title || '').toLowerCase().includes(q);
-      const matchUrl = (l.url || '').toLowerCase().includes(q);
-      return matchTitle || matchUrl;
-    });
-  }
+  let draggedQuickLinkId = null;
 
   function renderQuickLinks() {
     if (!elements.quickLinksList) return;
-    const filtered = getFilteredQuickLinks();
 
     if (elements.quickLinksCountBadge) {
       elements.quickLinksCountBadge.textContent = state.quickLinks.length;
     }
 
-    if (filtered.length === 0) {
-      const msg = state.quickLinksSearch.trim()
-        ? 'No matching links found.'
-        : 'No quick links yet. Click "+ Add Link" to bookmark your favorite sites!';
+    if (state.quickLinks.length === 0) {
       elements.quickLinksList.innerHTML = `
-        <div class="quick-links-empty">
-          <span>${escapeHtml(msg)}</span>
-          ${!state.quickLinksSearch.trim() ? `<button type="button" class="btn btn-secondary btn-sm" id="emptyAddLinkBtn">+ Add Link</button>` : ''}
-        </div>
+        <div class="dock-empty-hint">Empty</div>
       `;
-      const emptyBtn = elements.quickLinksList.querySelector('#emptyAddLinkBtn');
-      if (emptyBtn) {
-        emptyBtn.addEventListener('click', () => openQuickLinkForm());
-      }
       return;
     }
 
-    elements.quickLinksList.innerHTML = filtered.map((link) => {
+    elements.quickLinksList.innerHTML = state.quickLinks.map((link) => {
       const url = normalizeUrl(link.url);
       let hostname = url;
       try {
@@ -1607,27 +1591,27 @@
       const initial = (link.title || 'L').charAt(0).toUpperCase();
 
       return `
-        <div class="quick-link-card" data-link-id="${escapeHtml(link.id)}">
-          <a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" class="quick-link-main" title="${escapeHtml(link.title)} (${escapeHtml(hostname)})">
-            <div class="quick-link-favicon-wrap">
-              <img src="https://www.google.com/s2/favicons?domain=${encodeURIComponent(hostname)}&sz=32" alt="" class="quick-link-favicon" loading="lazy">
-              <div class="quick-link-fallback-avatar" style="display:none;">${escapeHtml(initial)}</div>
-            </div>
-            <div class="quick-link-info">
-              <span class="quick-link-title">${escapeHtml(link.title)}</span>
-              <span class="quick-link-domain">${escapeHtml(hostname)}</span>
-            </div>
-            <svg class="quick-link-external-icon" viewBox="0 0 16 16" fill="currentColor">
-              <path d="M8.636 3.5a.5.5 0 00-.5.5v1a.5.5 0 00.5.5h1.793L5.146 10.793a.5.5 0 00.708.708L11.146 6.207v1.793a.5.5 0 00.5.5h1a.5.5 0 00.5-.5v-4.5a.5.5 0 00-.5-.5h-4.5z"/>
-              <path d="M3 5a2 2 0 00-2 2v6a2 2 0 002 2h6a2 2 0 002-2V9.5a.5.5 0 00-1 0V13a1 1 0 01-1 1H3a1 1 0 01-1-1V7a1 1 0 011-1h3.5a.5.5 0 000-1H3z"/>
-            </svg>
+        <div class="quick-link-icon-item" draggable="true" data-link-id="${escapeHtml(link.id)}">
+          <a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" class="quick-link-icon-btn" aria-label="${escapeHtml(link.title)}" title="${escapeHtml(link.title)}">
+            <img src="https://www.google.com/s2/favicons?domain=${encodeURIComponent(hostname)}&sz=64" alt="" class="quick-link-favicon" loading="lazy">
+            <div class="quick-link-fallback" style="display:none;">${escapeHtml(initial)}</div>
           </a>
-          <div class="quick-link-actions">
-            <button class="quick-link-btn copy-ql-btn" title="Copy URL" data-action="copy-url" data-url="${escapeHtml(url)}">
-              ${PR_COPY_ICON_SVG}
-            </button>
-            <button class="quick-link-btn edit-ql-btn" title="Edit Link" data-action="edit-link" data-id="${escapeHtml(link.id)}">✎</button>
-            <button class="quick-link-btn delete-ql-btn" title="Delete Link" data-action="delete-link" data-id="${escapeHtml(link.id)}">✕</button>
+          <div class="quick-link-popover">
+            <div class="popover-header">
+              <span class="popover-title">${escapeHtml(link.title)}</span>
+              <span class="popover-domain">${escapeHtml(hostname)}</span>
+            </div>
+            <div class="popover-actions">
+              <button type="button" class="popover-btn" data-action="copy-ql-url" data-url="${escapeHtml(url)}" title="Copy URL">
+                ${PR_COPY_ICON_SVG} Copy
+              </button>
+              <button type="button" class="popover-btn" data-action="edit-ql-link" data-id="${escapeHtml(link.id)}" title="Edit link">
+                ✎ Edit
+              </button>
+              <button type="button" class="popover-btn delete-btn" data-action="delete-ql-link" data-id="${escapeHtml(link.id)}" title="Delete link">
+                ✕
+              </button>
+            </div>
           </div>
         </div>
       `;
@@ -1644,38 +1628,41 @@
       });
     });
 
-    // Attach card event listeners
-    elements.quickLinksList.querySelectorAll('[data-action="copy-url"]').forEach((btn) => {
+    // Attach popover action button listeners
+    elements.quickLinksList.querySelectorAll('[data-action="copy-ql-url"]').forEach((btn) => {
       btn.addEventListener('click', async (e) => {
         e.stopPropagation();
+        e.preventDefault();
         const urlToCopy = btn.dataset.url;
         const ok = await copyTextToClipboard(urlToCopy);
         if (ok) {
           btn.classList.add('copied');
-          btn.innerHTML = PR_CHECK_ICON_SVG;
+          btn.innerHTML = `${PR_CHECK_ICON_SVG} Copied!`;
           showCopyFeedback('Link copied to clipboard!');
           setTimeout(() => {
             btn.classList.remove('copied');
-            btn.innerHTML = PR_COPY_ICON_SVG;
+            btn.innerHTML = `${PR_COPY_ICON_SVG} Copy`;
           }, 1500);
         }
       });
     });
 
-    elements.quickLinksList.querySelectorAll('[data-action="edit-link"]').forEach((btn) => {
+    elements.quickLinksList.querySelectorAll('[data-action="edit-ql-link"]').forEach((btn) => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
+        e.preventDefault();
         const linkId = btn.dataset.id;
         const link = state.quickLinks.find((l) => l.id === linkId);
         if (link) {
-          openQuickLinkForm(link);
+          openQuickLinkModal(link);
         }
       });
     });
 
-    elements.quickLinksList.querySelectorAll('[data-action="delete-link"]').forEach((btn) => {
+    elements.quickLinksList.querySelectorAll('[data-action="delete-ql-link"]').forEach((btn) => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
+        e.preventDefault();
         const linkId = btn.dataset.id;
         const link = state.quickLinks.find((l) => l.id === linkId);
         if (link && confirm(`Delete quick link "${link.title}"?`)) {
@@ -1685,41 +1672,134 @@
         }
       });
     });
+
+    // Setup native drag & drop reordering
+    setupQuickLinksDragAndDrop();
   }
 
-  function openQuickLinkForm(linkToEdit = null) {
-    if (!elements.quickLinkFormContainer) return;
-    elements.quickLinkFormContainer.classList.remove('hidden');
+  function setupQuickLinksDragAndDrop() {
+    const items = elements.quickLinksList.querySelectorAll('.quick-link-icon-item');
+    items.forEach((item) => {
+      const linkId = item.dataset.linkId;
+
+      item.addEventListener('dragstart', (e) => {
+        draggedQuickLinkId = linkId;
+        item.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', linkId);
+      });
+
+      item.addEventListener('dragend', () => {
+        item.classList.remove('dragging');
+        draggedQuickLinkId = null;
+        clearQuickLinkDropIndicators();
+      });
+
+      item.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!draggedQuickLinkId || draggedQuickLinkId === linkId) return;
+
+        const rect = item.getBoundingClientRect();
+        const midpoint = rect.top + rect.height / 2;
+
+        clearQuickLinkDropIndicators();
+        if (e.clientY < midpoint) {
+          item.classList.add('drag-over-top');
+        } else {
+          item.classList.add('drag-over-bottom');
+        }
+      });
+
+      item.addEventListener('dragleave', (e) => {
+        const rect = item.getBoundingClientRect();
+        if (
+          e.clientX < rect.left ||
+          e.clientX >= rect.right ||
+          e.clientY < rect.top ||
+          e.clientY >= rect.bottom
+        ) {
+          item.classList.remove('drag-over-top', 'drag-over-bottom');
+        }
+      });
+
+      item.addEventListener('drop', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const sourceId = draggedQuickLinkId || e.dataTransfer.getData('text/plain');
+        if (!sourceId || sourceId === linkId) {
+          clearQuickLinkDropIndicators();
+          return;
+        }
+
+        const rect = item.getBoundingClientRect();
+        const insertBefore = e.clientY < (rect.top + rect.height / 2);
+
+        reorderQuickLinks(sourceId, linkId, insertBefore);
+        clearQuickLinkDropIndicators();
+      });
+    });
+  }
+
+  function clearQuickLinkDropIndicators() {
+    if (!elements.quickLinksList) return;
+    elements.quickLinksList.querySelectorAll('.quick-link-icon-item').forEach((item) => {
+      item.classList.remove('drag-over-top', 'drag-over-bottom');
+    });
+  }
+
+  function reorderQuickLinks(sourceId, targetId, insertBefore) {
+    const sourceIdx = state.quickLinks.findIndex((l) => l.id === sourceId);
+    if (sourceIdx === -1) return;
+
+    const [sourceLink] = state.quickLinks.splice(sourceIdx, 1);
+    let targetIdx = state.quickLinks.findIndex((l) => l.id === targetId);
+    if (targetIdx === -1) {
+      state.quickLinks.push(sourceLink);
+    } else {
+      const insertionIdx = insertBefore ? targetIdx : targetIdx + 1;
+      state.quickLinks.splice(insertionIdx, 0, sourceLink);
+    }
+
+    Storage.saveQuickLinks(state.quickLinks);
+    renderQuickLinks();
+  }
+
+  function openQuickLinkModal(linkToEdit = null) {
+    if (!elements.quickLinkModal) return;
 
     if (linkToEdit) {
       state.editingQuickLinkId = linkToEdit.id;
-      elements.quickLinkFormHeading.textContent = 'Edit Quick Link';
-      elements.quickLinkTitleInput.value = linkToEdit.title;
-      elements.quickLinkUrlInput.value = linkToEdit.url;
-      elements.saveQuickLinkBtn.textContent = 'Update Link';
+      if (elements.quickLinkModalTitle) elements.quickLinkModalTitle.textContent = 'Edit Quick Link';
+      if (elements.quickLinkTitleInput) elements.quickLinkTitleInput.value = linkToEdit.title;
+      if (elements.quickLinkUrlInput) elements.quickLinkUrlInput.value = linkToEdit.url;
+      if (elements.saveQuickLinkModalBtn) elements.saveQuickLinkModalBtn.textContent = 'Update Link';
     } else {
       state.editingQuickLinkId = null;
-      elements.quickLinkFormHeading.textContent = 'Add New Link';
-      elements.quickLinkTitleInput.value = '';
-      elements.quickLinkUrlInput.value = '';
-      elements.saveQuickLinkBtn.textContent = 'Save Link';
+      if (elements.quickLinkModalTitle) elements.quickLinkModalTitle.textContent = 'Add Quick Link';
+      if (elements.quickLinkTitleInput) elements.quickLinkTitleInput.value = '';
+      if (elements.quickLinkUrlInput) elements.quickLinkUrlInput.value = '';
+      if (elements.saveQuickLinkModalBtn) elements.saveQuickLinkModalBtn.textContent = 'Save Link';
     }
 
-    elements.quickLinkTitleInput.focus();
+    elements.quickLinkModal.classList.remove('hidden');
+    if (elements.quickLinkTitleInput) elements.quickLinkTitleInput.focus();
   }
 
-  function closeQuickLinkForm() {
-    if (!elements.quickLinkFormContainer) return;
-    elements.quickLinkFormContainer.classList.add('hidden');
-    elements.quickLinkTitleInput.value = '';
-    elements.quickLinkUrlInput.value = '';
+  function closeQuickLinkModal() {
+    if (elements.quickLinkModal) {
+      elements.quickLinkModal.classList.add('hidden');
+    }
+    if (elements.quickLinkTitleInput) elements.quickLinkTitleInput.value = '';
+    if (elements.quickLinkUrlInput) elements.quickLinkUrlInput.value = '';
     state.editingQuickLinkId = null;
   }
 
   function handleQuickLinkSubmit(e) {
     e.preventDefault();
-    const title = elements.quickLinkTitleInput.value.trim();
-    const rawUrl = elements.quickLinkUrlInput.value.trim();
+    const title = elements.quickLinkTitleInput ? elements.quickLinkTitleInput.value.trim() : '';
+    const rawUrl = elements.quickLinkUrlInput ? elements.quickLinkUrlInput.value.trim() : '';
     if (!title || !rawUrl) return;
 
     const url = normalizeUrl(rawUrl);
@@ -1742,7 +1822,7 @@
 
     Storage.saveQuickLinks(state.quickLinks);
     renderQuickLinks();
-    closeQuickLinkForm();
+    closeQuickLinkModal();
   }
 
   // --- Event Bindings ---
@@ -1848,11 +1928,14 @@
     }
 
     // Backdrop click to close modals
-    [elements.bulkAddModal, elements.taskModal, elements.reportModal].forEach((modal) => {
+    [elements.bulkAddModal, elements.taskModal, elements.reportModal, elements.quickLinkModal].forEach((modal) => {
       if (!modal) return;
       modal.addEventListener('click', (e) => {
         if (e.target === modal) {
           modal.classList.add('hidden');
+          if (modal === elements.quickLinkModal) {
+            closeQuickLinkModal();
+          }
         }
       });
     });
@@ -1864,6 +1947,7 @@
         closeBulkModal();
         closeTaskModal();
         closeReportModal();
+        closeQuickLinkModal();
         if (!state.quickLinksPinned && elements.quickLinksSidebar && elements.quickLinksSidebar.classList.contains('open')) {
           closeQuickLinksSidebar();
         }
@@ -1948,29 +2032,30 @@
       });
     }
 
+    // Quick Link Modal triggers
     if (elements.openAddQuickLinkBtn) {
       elements.openAddQuickLinkBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        openQuickLinkForm();
+        openQuickLinkModal();
       });
     }
 
-    if (elements.cancelQuickLinkBtn) {
-      elements.cancelQuickLinkBtn.addEventListener('click', (e) => {
+    if (elements.closeQuickLinkModalBtn) {
+      elements.closeQuickLinkModalBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        closeQuickLinkForm();
+        closeQuickLinkModal();
+      });
+    }
+
+    if (elements.cancelQuickLinkModalBtn) {
+      elements.cancelQuickLinkModalBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        closeQuickLinkModal();
       });
     }
 
     if (elements.quickLinkForm) {
       elements.quickLinkForm.addEventListener('submit', handleQuickLinkSubmit);
-    }
-
-    if (elements.quickLinksSearchInput) {
-      elements.quickLinksSearchInput.addEventListener('input', (e) => {
-        state.quickLinksSearch = e.target.value;
-        renderQuickLinks();
-      });
     }
 
     // Drag zones setup
