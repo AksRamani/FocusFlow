@@ -70,17 +70,22 @@
 
   const DEFAULT_SETTINGS = {
     wallpaper: '', // base64 dataUrl or ''
-    wallpaperPreset: 'default', // 'default' | 'aurora' | 'cyber' | 'sunset' | 'custom'
-    wallpaperBlur: 12,
-    wallpaperDim: 60,
+    wallpaperPreset: 'default', // 'none' | 'default' | 'aurora' | 'cyber' | 'sunset' | 'custom'
+    wallpaperBlur: 0,
+    wallpaperDim: 20,
+    columnGlassOpacity: 5, // % opacity (5% default, gives ultra-transparent frosted glass)
     textColor: '#f1f5f9',
     timeFormat: '12h-sec'
   };
 
   const WALLPAPER_PRESETS = {
+    none: {
+      name: 'Pure Minimal Dark',
+      css: 'none'
+    },
     default: {
       name: 'Dark Mesh',
-      css: 'radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.22) 0px, transparent 50%), radial-gradient(at 100% 0%, rgba(56, 189, 248, 0.18) 0px, transparent 50%), radial-gradient(at 50% 100%, rgba(139, 92, 246, 0.16) 0px, transparent 50%), #0c0f17'
+      css: 'radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.25) 0px, transparent 55%), radial-gradient(at 100% 0%, rgba(56, 189, 248, 0.2) 0px, transparent 55%), radial-gradient(at 50% 100%, rgba(139, 92, 246, 0.18) 0px, transparent 55%), #0c0f17'
     },
     aurora: {
       name: 'Aurora Borealis',
@@ -200,6 +205,8 @@
       wallpaperFileInput: document.getElementById('wallpaperFileInput'),
       removeWallpaperBtn: document.getElementById('removeWallpaperBtn'),
       presetWpBtns: document.querySelectorAll('.preset-wp-btn'),
+      columnOpacityInput: document.getElementById('columnOpacityInput'),
+      columnOpacityVal: document.getElementById('columnOpacityVal'),
       wallpaperBlurInput: document.getElementById('wallpaperBlurInput'),
       blurVal: document.getElementById('blurVal'),
       wallpaperDimInput: document.getElementById('wallpaperDimInput'),
@@ -488,38 +495,57 @@
     if (elements.wallpaperBackground) {
       if (s.wallpaper && s.wallpaper.trim()) {
         elements.wallpaperBackground.style.backgroundImage = `url("${s.wallpaper}")`;
+        elements.wallpaperBackground.style.backgroundColor = '#0c0f17';
       } else {
         const preset = WALLPAPER_PRESETS[s.wallpaperPreset] || WALLPAPER_PRESETS.default;
-        elements.wallpaperBackground.style.backgroundImage = preset.css;
+        if (s.wallpaperPreset === 'none' || preset.css === 'none') {
+          elements.wallpaperBackground.style.backgroundImage = 'none';
+          elements.wallpaperBackground.style.backgroundColor = '#0c0f17';
+        } else {
+          elements.wallpaperBackground.style.backgroundImage = preset.css;
+          elements.wallpaperBackground.style.backgroundColor = '#0c0f17';
+        }
       }
     }
 
     // 2. Overlay blur and dim
     if (elements.wallpaperOverlay) {
-      const blurPx = typeof s.wallpaperBlur === 'number' ? s.wallpaperBlur : 12;
-      const dimPct = typeof s.wallpaperDim === 'number' ? s.wallpaperDim : 60;
+      const blurPx = typeof s.wallpaperBlur === 'number' ? s.wallpaperBlur : 0;
+      const dimPct = typeof s.wallpaperDim === 'number' ? s.wallpaperDim : 20;
       elements.wallpaperOverlay.style.backdropFilter = `blur(${blurPx}px)`;
       elements.wallpaperOverlay.style.webkitBackdropFilter = `blur(${blurPx}px)`;
       elements.wallpaperOverlay.style.background = `rgba(10, 14, 23, ${dimPct / 100})`;
     }
 
-    // 3. Text color
+    // 3. Columns glass transparency
+    const colOpacity = typeof s.columnGlassOpacity === 'number' ? s.columnGlassOpacity : 5;
+    const colAlpha = (colOpacity / 100).toFixed(2);
+    document.documentElement.style.setProperty('--column-glass-bg', `rgba(255, 255, 255, ${colAlpha})`);
+
+    // 4. Text color
     const textColor = s.textColor || '#f1f5f9';
     document.documentElement.style.setProperty('--text-primary', textColor);
 
-    // 4. Update preview box in settings modal
+    // 5. Update preview box in settings modal
     if (elements.wallpaperPreviewBox) {
       if (s.wallpaper && s.wallpaper.trim()) {
         elements.wallpaperPreviewBox.style.backgroundImage = `url("${s.wallpaper}")`;
         if (elements.wallpaperPreviewLabel) elements.wallpaperPreviewLabel.textContent = 'Custom Wallpaper';
       } else {
         const preset = WALLPAPER_PRESETS[s.wallpaperPreset] || WALLPAPER_PRESETS.default;
-        elements.wallpaperPreviewBox.style.backgroundImage = preset.css;
-        if (elements.wallpaperPreviewLabel) elements.wallpaperPreviewLabel.textContent = preset.name;
+        if (s.wallpaperPreset === 'none' || preset.css === 'none') {
+          elements.wallpaperPreviewBox.style.backgroundImage = 'none';
+          elements.wallpaperPreviewBox.style.backgroundColor = '#090c14';
+          if (elements.wallpaperPreviewLabel) elements.wallpaperPreviewLabel.textContent = 'Pure Dark (No Image)';
+        } else {
+          elements.wallpaperPreviewBox.style.backgroundImage = preset.css;
+          elements.wallpaperPreviewBox.style.backgroundColor = '#0c0f17';
+          if (elements.wallpaperPreviewLabel) elements.wallpaperPreviewLabel.textContent = preset.name;
+        }
       }
     }
 
-    // 5. Update clock with active format
+    // 6. Update clock with active format
     updateClock();
   }
 
@@ -535,6 +561,12 @@
     }
 
     // Sliders
+    if (elements.columnOpacityInput) {
+      elements.columnOpacityInput.value = s.columnGlassOpacity;
+    }
+    if (elements.columnOpacityVal) {
+      elements.columnOpacityVal.textContent = `${100 - s.columnGlassOpacity}% Transparent`;
+    }
     if (elements.wallpaperBlurInput) {
       elements.wallpaperBlurInput.value = s.wallpaperBlur;
     }
@@ -2436,16 +2468,31 @@
       });
     }
 
-    // Reset wallpaper button
+    // Remove background image button (Pure minimal dark)
     if (elements.removeWallpaperBtn) {
       elements.removeWallpaperBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         state.settings.wallpaper = '';
-        state.settings.wallpaperPreset = 'default';
+        state.settings.wallpaperPreset = 'none';
         applyAppearanceSettings();
         syncSettingsModalUI();
         Storage.saveSettings(state.settings);
-        showToast('Wallpaper reset to default');
+        showToast('Background image removed (Pure Dark mode)');
+      });
+    }
+
+    // Columns glass transparency slider
+    if (elements.columnOpacityInput) {
+      elements.columnOpacityInput.addEventListener('input', (e) => {
+        const val = parseInt(e.target.value, 10);
+        state.settings.columnGlassOpacity = val;
+        if (elements.columnOpacityVal) {
+          elements.columnOpacityVal.textContent = `${100 - val}% Transparent`;
+        }
+        applyAppearanceSettings();
+      });
+      elements.columnOpacityInput.addEventListener('change', () => {
+        Storage.saveSettings(state.settings);
       });
     }
 

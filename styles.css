@@ -64,9 +64,13 @@
   padding: 0;
 }
 
+html {
+  background-color: #0c0f17;
+}
+
 body {
   font-family: var(--font-family);
-  background-color: var(--bg-main);
+  background-color: transparent;
   color: var(--text-primary);
   min-height: 100vh;
   line-height: 1.5;
@@ -83,10 +87,11 @@ body {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  background-color: #0c0f17;
   transition: opacity 0.4s ease, filter 0.4s ease;
-  background-image: radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.22) 0px, transparent 50%),
-                    radial-gradient(at 100% 0%, rgba(56, 189, 248, 0.18) 0px, transparent 50%),
-                    radial-gradient(at 50% 100%, rgba(139, 92, 246, 0.16) 0px, transparent 50%),
+  background-image: radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.25) 0px, transparent 55%),
+                    radial-gradient(at 100% 0%, rgba(56, 189, 248, 0.2) 0px, transparent 55%),
+                    radial-gradient(at 50% 100%, rgba(139, 92, 246, 0.18) 0px, transparent 55%),
                     #0c0f17;
 }
 
@@ -94,9 +99,9 @@ body {
   position: fixed;
   inset: 0;
   z-index: -1;
-  background: rgba(10, 14, 23, 0.6);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(10, 14, 23, 0.2);
+  backdrop-filter: blur(0px);
+  -webkit-backdrop-filter: blur(0px);
   pointer-events: none;
   transition: background 0.3s ease, backdrop-filter 0.3s ease;
 }
@@ -138,8 +143,13 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--border-subtle);
+  padding: 12px 22px;
+  background: rgba(15, 23, 42, 0.42);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.08);
 }
 
 .brand-section {
@@ -464,25 +474,30 @@ body {
 }
 
 .kanban-column {
-  background: rgba(18, 24, 38, 0.58);
-  backdrop-filter: blur(18px) saturate(160%);
-  -webkit-backdrop-filter: blur(18px) saturate(160%);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.35), inset 0 1px 1px 0 rgba(255, 255, 255, 0.08);
+  background: var(--column-glass-bg, rgba(255, 255, 255, 0.045));
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 12px 36px 0 rgba(0, 0, 0, 0.32), inset 0 1px 1px 0 rgba(255, 255, 255, 0.18);
   border-radius: var(--radius-lg);
   display: flex;
   flex-direction: column;
-  padding: 14px;
+  padding: 16px;
   gap: 12px;
   transition: border-color var(--transition-fast), background-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.kanban-column:hover {
+  border-color: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 16px 44px 0 rgba(0, 0, 0, 0.42), inset 0 1px 1px 0 rgba(255, 255, 255, 0.25);
 }
 
 .column-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 4px 6px 8px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  padding: 4px 6px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .col-title-group {
@@ -510,7 +525,8 @@ body {
   font-size: 0.75rem;
   font-weight: 600;
   padding: 2px 8px;
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: var(--radius-full);
   color: var(--text-secondary);
 }
@@ -589,14 +605,26 @@ body {
 
 .add-inline-btn {
   width: 100%;
-  padding: 8px;
-  background: transparent;
-  border: 1px dashed var(--border-subtle);
+  padding: 9px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px dashed rgba(255, 255, 255, 0.18);
   border-radius: var(--radius-md);
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font-size: 0.82rem;
+  font-weight: 500;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   transition: all var(--transition-fast);
+}
+
+.add-inline-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.35);
+  color: var(--text-primary);
+  box-shadow: 0 0 14px rgba(255, 255, 255, 0.08);
 }
 .add-inline-btn:hover {
   background: var(--bg-card);
@@ -2259,8 +2287,14 @@ body {
 
 .preset-wallpapers-row {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 8px;
+}
+
+@media (max-width: 650px) {
+  .preset-wallpapers-row {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 .preset-wp-btn {
@@ -2290,6 +2324,48 @@ body {
 
 .preset-wp-thumb {
   width: 100%;
+  height: 42px;
+  border-radius: 4px;
+  display: block;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.preset-none {
+  background: #090c14;
+  border: 1px dashed rgba(255, 255, 255, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.preset-none::after {
+  content: 'None';
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.btn-danger-ghost {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #fca5a5;
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all var(--transition-fast);
+}
+
+.btn-danger-ghost:hover {
+  background: rgba(239, 68, 68, 0.25);
+  border-color: rgba(239, 68, 68, 0.6);
+  color: #ffffff;
+}
   height: 42px;
   border-radius: 4px;
   display: block;

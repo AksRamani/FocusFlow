@@ -7,10 +7,10 @@ A clean, minimalist dark-themed to-do list and Kanban board task manager that tr
 ## ✨ Features & Capabilities
 
 ### 🎨 Authentic Glassmorphism Theme & Aesthetic Personalization
-- **Modern Glassmorphic Surfaces:** All Kanban columns, task cards, quick links dock, and dialogs feature deep backdrop blur (`backdrop-filter: blur(...)`), translucent surfaces, glowing neon borders, and subtle inner reflections.
-- **Upload Custom Wallpaper:** Upload your own personal desktop wallpaper (`.png`, `.jpg`, `.webp`) with automatic client-side canvas compression for instant loading and safe local storage.
-- **Curated Wallpaper Presets:** Switch anytime between built-in gradients: **Dark Mesh**, **Aurora Borealis**, **Cyber Indigo**, and **Sunset Glow**.
-- **Adjustable Frosted Blur & Dark Tint:** Fine-tune background frosted blur (`0px` to `25px`) and dark glass tint (`20%` to `90%`) via interactive sliders to guarantee cards and text remain razor-sharp and legible.
+- **Modern Glassmorphic Surfaces:** All Kanban columns, task cards, quick links dock, and dialogs feature deep backdrop blur (`backdrop-filter: blur(...)`), ultra-transparent surfaces, glowing neon borders, and subtle inner reflections.
+- **Upload Custom Wallpaper & Remove Background Image:** Upload your own personal desktop wallpaper (`.png`, `.jpg`, `.webp`) with automatic client-side canvas compression, or click **Remove BG** anytime to revert to a sleek, distraction-free **Pure Minimal Dark** mode.
+- **Curated Wallpaper Presets:** Switch anytime between built-in presets: **Pure Dark**, **Dark Mesh**, **Aurora Borealis**, **Cyber Indigo**, and **Sunset Glow**.
+- **Adjustable Column Transparency, Frosted Blur & Tint:** Fine-tune column glass transparency (`60%` to `100%`), background blur (`0px` to `25px`), and background tint (`0%` to `90%`) via interactive sliders so wallpapers remain vibrant and cards remain crisp and legible.
 - **Custom Text & Font Color:** Pick your ideal accent text color from 7 curated swatches (Snow White, Crisp White, Cyber Cyan, Emerald Mint, Lavender, Amber, Coral Rose) or select any hex color using the native color picker.
 - **Flexible Time & Clock Formats:** Choose your preferred clock style:
   - `12h-sec`: `04:58:30 PM` (12-hour with live seconds)

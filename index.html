@@ -493,13 +493,17 @@
                   Upload Wallpaper
                 </label>
                 <input type="file" id="wallpaperFileInput" accept="image/*" class="hidden">
-                <button type="button" class="btn btn-ghost btn-sm" id="removeWallpaperBtn">Reset</button>
+                <button type="button" class="btn btn-danger-ghost btn-sm" id="removeWallpaperBtn" title="Remove background image and use pure minimal dark">✕ Remove BG</button>
               </div>
             </div>
 
             <div class="wallpaper-presets-col">
-              <label class="settings-sub-label">Or choose a preset backdrop:</label>
+              <label class="settings-sub-label">Or choose a backdrop preset:</label>
               <div class="preset-wallpapers-row">
+                <button type="button" class="preset-wp-btn" data-preset="none" title="No Wallpaper (Pure Minimal Dark)">
+                  <span class="preset-wp-thumb preset-none"></span>
+                  <span class="preset-wp-name">Pure Dark</span>
+                </button>
                 <button type="button" class="preset-wp-btn active" data-preset="default" title="Default Dark Glass Mesh">
                   <span class="preset-wp-thumb preset-default"></span>
                   <span class="preset-wp-name">Dark Mesh</span>
@@ -521,17 +525,24 @@
               <div class="wallpaper-sliders">
                 <div class="slider-row">
                   <div class="slider-label-row">
-                    <span>Frosted Glass Blur:</span>
-                    <strong id="blurVal">12px</strong>
+                    <span>Columns Glass Transparency:</span>
+                    <strong id="columnOpacityVal">95% Transparent</strong>
                   </div>
-                  <input type="range" id="wallpaperBlurInput" min="0" max="25" value="12" step="1" class="range-slider">
+                  <input type="range" id="columnOpacityInput" min="0" max="40" value="5" step="5" class="range-slider">
                 </div>
                 <div class="slider-row">
                   <div class="slider-label-row">
-                    <span>Dark Glass Tint:</span>
-                    <strong id="dimVal">60%</strong>
+                    <span>Frosted Blur:</span>
+                    <strong id="blurVal">0px</strong>
                   </div>
-                  <input type="range" id="wallpaperDimInput" min="20" max="90" value="60" step="5" class="range-slider">
+                  <input type="range" id="wallpaperBlurInput" min="0" max="25" value="0" step="1" class="range-slider">
+                </div>
+                <div class="slider-row">
+                  <div class="slider-label-row">
+                    <span>Background Tint:</span>
+                    <strong id="dimVal">20%</strong>
+                  </div>
+                  <input type="range" id="wallpaperDimInput" min="0" max="90" value="20" step="5" class="range-slider">
                 </div>
               </div>
             </div>
