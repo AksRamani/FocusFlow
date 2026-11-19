@@ -68,6 +68,34 @@
     }
   ];
 
+  const DEFAULT_SETTINGS = {
+    wallpaper: '', // base64 dataUrl or ''
+    wallpaperPreset: 'default', // 'default' | 'aurora' | 'cyber' | 'sunset' | 'custom'
+    wallpaperBlur: 12,
+    wallpaperDim: 60,
+    textColor: '#f1f5f9',
+    timeFormat: '12h-sec'
+  };
+
+  const WALLPAPER_PRESETS = {
+    default: {
+      name: 'Dark Mesh',
+      css: 'radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.22) 0px, transparent 50%), radial-gradient(at 100% 0%, rgba(56, 189, 248, 0.18) 0px, transparent 50%), radial-gradient(at 50% 100%, rgba(139, 92, 246, 0.16) 0px, transparent 50%), #0c0f17'
+    },
+    aurora: {
+      name: 'Aurora Borealis',
+      css: 'radial-gradient(at 20% 20%, #059669 0px, transparent 60%), radial-gradient(at 80% 80%, #0284c7 0px, transparent 60%), radial-gradient(at 50% 50%, #6366f1 0px, transparent 60%), #04121a'
+    },
+    cyber: {
+      name: 'Cyber Indigo',
+      css: 'radial-gradient(at 10% 90%, #9333ea 0px, transparent 60%), radial-gradient(at 90% 10%, #06b6d4 0px, transparent 60%), radial-gradient(at 50% 50%, #4338ca 0px, transparent 60%), #070a1e'
+    },
+    sunset: {
+      name: 'Sunset Glow',
+      css: 'radial-gradient(at 15% 15%, #e11d48 0px, transparent 60%), radial-gradient(at 85% 85%, #d97706 0px, transparent 60%), radial-gradient(at 50% 50%, #7c3aed 0px, transparent 60%), #120718'
+    }
+  };
+
   // --- App State ---
   let state = {
     tasks: [],
@@ -76,6 +104,7 @@
     quickLinksManageMode: false,
     quickLinksSearch: '',
     editingQuickLinkId: null,
+    settings: { ...DEFAULT_SETTINGS },
     activeView: 'board', // 'board' | 'todo' | 'in-progress' | 'done'
     searchQuery: '',
     priorityFilter: 'all',
@@ -157,7 +186,33 @@
       saveQuickLinkModalBtn: document.getElementById('saveQuickLinkModalBtn'),
       quickLinkForm: document.getElementById('quickLinkForm'),
       quickLinkTitleInput: document.getElementById('quickLinkTitleInput'),
-      quickLinkUrlInput: document.getElementById('quickLinkUrlInput')
+      quickLinkUrlInput: document.getElementById('quickLinkUrlInput'),
+
+      // Settings & Appearance Elements
+      wallpaperBackground: document.getElementById('wallpaperBackground'),
+      wallpaperOverlay: document.getElementById('wallpaperOverlay'),
+      openSettingsBtn: document.getElementById('openSettingsBtn'),
+      settingsModal: document.getElementById('settingsModal'),
+      closeSettingsModalBtn: document.getElementById('closeSettingsModalBtn'),
+      saveSettingsBtn: document.getElementById('saveSettingsBtn'),
+      wallpaperPreviewBox: document.getElementById('wallpaperPreviewBox'),
+      wallpaperPreviewLabel: document.getElementById('wallpaperPreviewLabel'),
+      wallpaperFileInput: document.getElementById('wallpaperFileInput'),
+      removeWallpaperBtn: document.getElementById('removeWallpaperBtn'),
+      presetWpBtns: document.querySelectorAll('.preset-wp-btn'),
+      wallpaperBlurInput: document.getElementById('wallpaperBlurInput'),
+      blurVal: document.getElementById('blurVal'),
+      wallpaperDimInput: document.getElementById('wallpaperDimInput'),
+      dimVal: document.getElementById('dimVal'),
+      colorSwatchBtns: document.querySelectorAll('.color-swatch-btn'),
+      textColorPicker: document.getElementById('textColorPicker'),
+      customColorHex: document.getElementById('customColorHex'),
+      resetTextColorBtn: document.getElementById('resetTextColorBtn'),
+      timeFormatRadios: document.querySelectorAll('input[name="timeFormat"]'),
+      preview12hSec: document.getElementById('preview12hSec'),
+      preview12h: document.getElementById('preview12h'),
+      preview24hSec: document.getElementById('preview24hSec'),
+      preview24h: document.getElementById('preview24h')
     };
   }
 
@@ -318,19 +373,260 @@
       } catch (e) {
         console.error('Failed to save sidebar pinned state:', e);
       }
+    },
+
+    async loadSettings() {
+      return new Promise((resolve) => {
+        let settled = false;
+        const fallback = () => {
+          if (settled) return;
+          settled = true;
+          try {
+            const raw = localStorage.getItem('focusflow_settings');
+            resolve(raw ? Object.assign({}, DEFAULT_SETTINGS, JSON.parse(raw)) : { ...DEFAULT_SETTINGS });
+          } catch (e) {
+            resolve({ ...DEFAULT_SETTINGS });
+          }
+        };
+
+        const timer = setTimeout(fallback, 600);
+
+        try {
+          if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+            chrome.storage.local.get(['focusflow_settings'], (res) => {
+              if (settled) return;
+              clearTimeout(timer);
+              settled = true;
+              if (chrome.runtime && chrome.runtime.lastError) {
+                fallback();
+                return;
+              }
+              if (res && res.focusflow_settings) {
+                resolve(Object.assign({}, DEFAULT_SETTINGS, res.focusflow_settings));
+              } else {
+                fallback();
+              }
+            });
+          } else {
+            fallback();
+          }
+        } catch (e) {
+          fallback();
+        }
+      });
+    },
+
+    saveSettings(settings) {
+      if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+        chrome.storage.local.set({ focusflow_settings: settings });
+      }
+      try {
+        if (typeof localStorage !== 'undefined') {
+          localStorage.setItem('focusflow_settings', JSON.stringify(settings));
+        }
+      } catch (e) {
+        console.error('Failed to save settings:', e);
+      }
     }
   };
 
-  // --- Date & Clock Utilities ---
+  // --- Date, Clock & Personalization Utilities ---
+  function formatTime(date, format) {
+    const h24 = date.getHours();
+    const m = String(date.getMinutes()).padStart(2, '0');
+    const s = String(date.getSeconds()).padStart(2, '0');
+    const isPm = h24 >= 12;
+    const h12 = h24 % 12 || 12;
+    const h12Str = String(h12).padStart(2, '0');
+    const h24Str = String(h24).padStart(2, '0');
+    const ampm = isPm ? 'PM' : 'AM';
+
+    switch (format) {
+      case '12h':
+        return `${h12Str}:${m} ${ampm}`;
+      case '24h-sec':
+        return `${h24Str}:${m}:${s}`;
+      case '24h':
+        return `${h24Str}:${m}`;
+      case '12h-sec':
+      default:
+        return `${h12Str}:${m}:${s} ${ampm}`;
+    }
+  }
+
   function updateClock() {
     const now = new Date();
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const seconds = String(now.getSeconds()).padStart(2, '0');
-    elements.currentTime.textContent = `${hours}:${minutes}:${seconds}`;
+    const fmt = (state.settings && state.settings.timeFormat) || '12h-sec';
+    if (elements.currentTime) {
+      elements.currentTime.textContent = formatTime(now, fmt);
+    }
+    if (elements.currentDate) {
+      const dateOptions = { weekday: 'short', month: 'short', day: 'numeric' };
+      elements.currentDate.textContent = now.toLocaleDateString(undefined, dateOptions);
+    }
+    if (elements.preview12hSec) elements.preview12hSec.textContent = formatTime(now, '12h-sec');
+    if (elements.preview12h) elements.preview12h.textContent = formatTime(now, '12h');
+    if (elements.preview24hSec) elements.preview24hSec.textContent = formatTime(now, '24h-sec');
+    if (elements.preview24h) elements.preview24h.textContent = formatTime(now, '24h');
+  }
 
-    const dateOptions = { weekday: 'short', month: 'short', day: 'numeric' };
-    elements.currentDate.textContent = now.toLocaleDateString(undefined, dateOptions);
+  function cycleTimeFormat() {
+    const formats = ['12h-sec', '12h', '24h-sec', '24h'];
+    const currentIdx = formats.indexOf(state.settings.timeFormat);
+    const nextIdx = (currentIdx + 1) % formats.length;
+    state.settings.timeFormat = formats[nextIdx];
+    Storage.saveSettings(state.settings);
+    updateClock();
+    syncSettingsModalUI();
+    showToast(`Time format: ${state.settings.timeFormat}`);
+  }
+
+  function applyAppearanceSettings() {
+    const s = state.settings || DEFAULT_SETTINGS;
+
+    // 1. Wallpaper background
+    if (elements.wallpaperBackground) {
+      if (s.wallpaper && s.wallpaper.trim()) {
+        elements.wallpaperBackground.style.backgroundImage = `url("${s.wallpaper}")`;
+      } else {
+        const preset = WALLPAPER_PRESETS[s.wallpaperPreset] || WALLPAPER_PRESETS.default;
+        elements.wallpaperBackground.style.backgroundImage = preset.css;
+      }
+    }
+
+    // 2. Overlay blur and dim
+    if (elements.wallpaperOverlay) {
+      const blurPx = typeof s.wallpaperBlur === 'number' ? s.wallpaperBlur : 12;
+      const dimPct = typeof s.wallpaperDim === 'number' ? s.wallpaperDim : 60;
+      elements.wallpaperOverlay.style.backdropFilter = `blur(${blurPx}px)`;
+      elements.wallpaperOverlay.style.webkitBackdropFilter = `blur(${blurPx}px)`;
+      elements.wallpaperOverlay.style.background = `rgba(10, 14, 23, ${dimPct / 100})`;
+    }
+
+    // 3. Text color
+    const textColor = s.textColor || '#f1f5f9';
+    document.documentElement.style.setProperty('--text-primary', textColor);
+
+    // 4. Update preview box in settings modal
+    if (elements.wallpaperPreviewBox) {
+      if (s.wallpaper && s.wallpaper.trim()) {
+        elements.wallpaperPreviewBox.style.backgroundImage = `url("${s.wallpaper}")`;
+        if (elements.wallpaperPreviewLabel) elements.wallpaperPreviewLabel.textContent = 'Custom Wallpaper';
+      } else {
+        const preset = WALLPAPER_PRESETS[s.wallpaperPreset] || WALLPAPER_PRESETS.default;
+        elements.wallpaperPreviewBox.style.backgroundImage = preset.css;
+        if (elements.wallpaperPreviewLabel) elements.wallpaperPreviewLabel.textContent = preset.name;
+      }
+    }
+
+    // 5. Update clock with active format
+    updateClock();
+  }
+
+  function syncSettingsModalUI() {
+    const s = state.settings || DEFAULT_SETTINGS;
+
+    // Presets active highlight
+    if (elements.presetWpBtns && elements.presetWpBtns.length) {
+      elements.presetWpBtns.forEach((btn) => {
+        const isSelected = !s.wallpaper && btn.dataset.preset === s.wallpaperPreset;
+        btn.classList.toggle('active', Boolean(isSelected));
+      });
+    }
+
+    // Sliders
+    if (elements.wallpaperBlurInput) {
+      elements.wallpaperBlurInput.value = s.wallpaperBlur;
+    }
+    if (elements.blurVal) {
+      elements.blurVal.textContent = s.wallpaperBlur + 'px';
+    }
+    if (elements.wallpaperDimInput) {
+      elements.wallpaperDimInput.value = s.wallpaperDim;
+    }
+    if (elements.dimVal) {
+      elements.dimVal.textContent = s.wallpaperDim + '%';
+    }
+
+    // Text color swatches
+    if (elements.colorSwatchBtns && elements.colorSwatchBtns.length) {
+      elements.colorSwatchBtns.forEach((btn) => {
+        const matches = (btn.dataset.color || '').toLowerCase() === (s.textColor || '').toLowerCase();
+        btn.classList.toggle('active', matches);
+      });
+    }
+
+    // Custom color input & label
+    if (elements.textColorPicker) {
+      elements.textColorPicker.value = s.textColor || '#f1f5f9';
+    }
+    if (elements.customColorHex) {
+      elements.customColorHex.textContent = s.textColor || '#f1f5f9';
+    }
+
+    // Time format radios
+    if (elements.timeFormatRadios && elements.timeFormatRadios.length) {
+      elements.timeFormatRadios.forEach((radio) => {
+        radio.checked = (radio.value === s.timeFormat);
+      });
+    }
+  }
+
+  function handleWallpaperUpload(file) {
+    if (!file || !file.type.startsWith('image/')) {
+      showToast('Please select a valid image file');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const MAX_WIDTH = 1920;
+        const MAX_HEIGHT = 1080;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > MAX_WIDTH || height > MAX_HEIGHT) {
+          const ratio = Math.min(MAX_WIDTH / width, MAX_HEIGHT / height);
+          width = Math.round(width * ratio);
+          height = Math.round(height * ratio);
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+        state.settings.wallpaper = compressedDataUrl;
+        state.settings.wallpaperPreset = 'custom';
+        applyAppearanceSettings();
+        syncSettingsModalUI();
+        Storage.saveSettings(state.settings);
+        showToast('Custom wallpaper applied!');
+      };
+      img.onerror = () => {
+        showToast('Failed to load image');
+      };
+      img.src = e.target.result;
+    };
+    reader.onerror = () => {
+      showToast('Failed to read file');
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function openSettingsModal() {
+    if (!elements.settingsModal) return;
+    syncSettingsModalUI();
+    elements.settingsModal.classList.remove('hidden');
+  }
+
+  function closeSettingsModal() {
+    if (!elements.settingsModal) return;
+    elements.settingsModal.classList.add('hidden');
   }
 
   // --- Render Functions ---
@@ -2033,13 +2329,15 @@
     }
 
     // Backdrop click to close modals
-    [elements.bulkAddModal, elements.taskModal, elements.reportModal, elements.quickLinkModal].forEach((modal) => {
+    [elements.bulkAddModal, elements.taskModal, elements.reportModal, elements.quickLinkModal, elements.settingsModal].forEach((modal) => {
       if (!modal) return;
       modal.addEventListener('click', (e) => {
         if (e.target === modal) {
           modal.classList.add('hidden');
           if (modal === elements.quickLinkModal) {
             closeQuickLinkModal();
+          } else if (modal === elements.settingsModal) {
+            closeSettingsModal();
           }
         }
       });
@@ -2053,6 +2351,7 @@
         closeTaskModal();
         closeReportModal();
         closeQuickLinkModal();
+        closeSettingsModal();
         if (!state.quickLinksPinned && elements.quickLinksSidebar && elements.quickLinksSidebar.classList.contains('open')) {
           closeQuickLinksSidebar();
         }
@@ -2078,6 +2377,13 @@
         } else if (e.key === 'r' || e.key === 'R') {
           e.preventDefault();
           openReportModal();
+        } else if (e.key === 's' || e.key === 'S') {
+          e.preventDefault();
+          if (elements.settingsModal && !elements.settingsModal.classList.contains('hidden')) {
+            closeSettingsModal();
+          } else {
+            openSettingsModal();
+          }
         } else if (e.key === 'l' || e.key === 'L') {
           e.preventDefault();
           if (elements.quickLinksSidebar && elements.quickLinksSidebar.classList.contains('open')) {
@@ -2088,6 +2394,154 @@
         }
       }
     });
+
+    // Clock direct click to cycle format
+    if (elements.currentTime) {
+      elements.currentTime.title = 'Click to switch time format';
+      elements.currentTime.addEventListener('click', () => {
+        cycleTimeFormat();
+      });
+    }
+
+    // Settings Modal Triggers
+    if (elements.openSettingsBtn) {
+      elements.openSettingsBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openSettingsModal();
+      });
+    }
+
+    if (elements.closeSettingsModalBtn) {
+      elements.closeSettingsModalBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        closeSettingsModal();
+      });
+    }
+
+    if (elements.saveSettingsBtn) {
+      elements.saveSettingsBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        closeSettingsModal();
+      });
+    }
+
+    // Wallpaper file input listener
+    if (elements.wallpaperFileInput) {
+      elements.wallpaperFileInput.addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (file) {
+          handleWallpaperUpload(file);
+        }
+        elements.wallpaperFileInput.value = '';
+      });
+    }
+
+    // Reset wallpaper button
+    if (elements.removeWallpaperBtn) {
+      elements.removeWallpaperBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        state.settings.wallpaper = '';
+        state.settings.wallpaperPreset = 'default';
+        applyAppearanceSettings();
+        syncSettingsModalUI();
+        Storage.saveSettings(state.settings);
+        showToast('Wallpaper reset to default');
+      });
+    }
+
+    // Preset wallpaper buttons
+    if (elements.presetWpBtns && elements.presetWpBtns.length) {
+      elements.presetWpBtns.forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const preset = btn.dataset.preset;
+          state.settings.wallpaper = '';
+          state.settings.wallpaperPreset = preset;
+          applyAppearanceSettings();
+          syncSettingsModalUI();
+          Storage.saveSettings(state.settings);
+        });
+      });
+    }
+
+    // Frosted blur slider
+    if (elements.wallpaperBlurInput) {
+      elements.wallpaperBlurInput.addEventListener('input', (e) => {
+        const val = parseInt(e.target.value, 10);
+        state.settings.wallpaperBlur = val;
+        if (elements.blurVal) elements.blurVal.textContent = val + 'px';
+        applyAppearanceSettings();
+      });
+      elements.wallpaperBlurInput.addEventListener('change', () => {
+        Storage.saveSettings(state.settings);
+      });
+    }
+
+    // Dark glass dim slider
+    if (elements.wallpaperDimInput) {
+      elements.wallpaperDimInput.addEventListener('input', (e) => {
+        const val = parseInt(e.target.value, 10);
+        state.settings.wallpaperDim = val;
+        if (elements.dimVal) elements.dimVal.textContent = val + '%';
+        applyAppearanceSettings();
+      });
+      elements.wallpaperDimInput.addEventListener('change', () => {
+        Storage.saveSettings(state.settings);
+      });
+    }
+
+    // Color swatches
+    if (elements.colorSwatchBtns && elements.colorSwatchBtns.length) {
+      elements.colorSwatchBtns.forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const color = btn.dataset.color;
+          state.settings.textColor = color;
+          applyAppearanceSettings();
+          syncSettingsModalUI();
+          Storage.saveSettings(state.settings);
+        });
+      });
+    }
+
+    // Text color picker & hex
+    if (elements.textColorPicker) {
+      elements.textColorPicker.addEventListener('input', (e) => {
+        state.settings.textColor = e.target.value;
+        if (elements.customColorHex) elements.customColorHex.textContent = e.target.value;
+        applyAppearanceSettings();
+      });
+      elements.textColorPicker.addEventListener('change', (e) => {
+        state.settings.textColor = e.target.value;
+        syncSettingsModalUI();
+        Storage.saveSettings(state.settings);
+      });
+    }
+
+    // Reset text color button
+    if (elements.resetTextColorBtn) {
+      elements.resetTextColorBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        state.settings.textColor = '#f1f5f9';
+        applyAppearanceSettings();
+        syncSettingsModalUI();
+        Storage.saveSettings(state.settings);
+        showToast('Text color reset to default');
+      });
+    }
+
+    // Time format radios
+    if (elements.timeFormatRadios && elements.timeFormatRadios.length) {
+      elements.timeFormatRadios.forEach((radio) => {
+        radio.addEventListener('change', () => {
+          if (radio.checked) {
+            state.settings.timeFormat = radio.value;
+            updateClock();
+            Storage.saveSettings(state.settings);
+          }
+        });
+      });
+    }
 
     // Quick Links Sidebar event bindings
     if (elements.quickLinksToggleBtn) {
@@ -2178,6 +2632,8 @@
       initEventBindings();
       state.tasks = await Storage.loadTasks();
       state.quickLinks = await Storage.loadQuickLinks();
+      state.settings = await Storage.loadSettings();
+      applyAppearanceSettings();
       const pinned = await Storage.loadSidebarPinned();
       setQuickLinksPinned(pinned);
       render();

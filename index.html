@@ -7,6 +7,10 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body class="dark-theme">
+  <!-- Dynamic Glassmorphic Wallpaper & Atmosphere Layers -->
+  <div id="wallpaperBackground" class="wallpaper-background"></div>
+  <div id="wallpaperOverlay" class="wallpaper-overlay"></div>
+
   <div class="app-container">
     <!-- Header -->
     <header class="app-header">
@@ -65,6 +69,13 @@
           </svg>
           Quick Links
           <span id="quickLinksCountBadge" class="badge">0</span>
+        </button>
+
+        <button id="openSettingsBtn" class="btn btn-secondary" title="Theme, Wallpaper & Clock Settings (Shortcut: S)" aria-label="Settings">
+          <svg class="icon" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
+          </svg>
+          Theme
         </button>
       </div>
     </header>
@@ -445,6 +456,167 @@
           <button type="submit" class="btn btn-primary" id="saveQuickLinkModalBtn">Save Link</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- Settings & Theme Customization Modal -->
+  <div class="modal-overlay hidden" id="settingsModal">
+    <div class="modal-card settings-modal-card">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <h3>Appearance & Personalization</h3>
+          <span class="modal-subtitle">Glassmorphism theme, custom wallpaper, text colors & clock format</span>
+        </div>
+        <button class="modal-close-btn" id="closeSettingsModalBtn">&times;</button>
+      </div>
+
+      <div class="modal-body settings-modal-body">
+        <!-- Section 1: Glass Theme & Wallpaper -->
+        <div class="settings-section">
+          <div class="settings-section-title">
+            <svg class="settings-icon" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" />
+            </svg>
+            <span>Background & Wallpaper</span>
+          </div>
+
+          <div class="wallpaper-settings-grid">
+            <div class="wallpaper-preview-wrap">
+              <div id="wallpaperPreviewBox" class="wallpaper-preview-box">
+                <span id="wallpaperPreviewLabel">Default Glass Mesh</span>
+              </div>
+              <div class="wallpaper-actions">
+                <label for="wallpaperFileInput" class="btn btn-primary btn-sm upload-btn-label">
+                  <svg class="icon" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                  </svg>
+                  Upload Wallpaper
+                </label>
+                <input type="file" id="wallpaperFileInput" accept="image/*" class="hidden">
+                <button type="button" class="btn btn-ghost btn-sm" id="removeWallpaperBtn">Reset</button>
+              </div>
+            </div>
+
+            <div class="wallpaper-presets-col">
+              <label class="settings-sub-label">Or choose a preset backdrop:</label>
+              <div class="preset-wallpapers-row">
+                <button type="button" class="preset-wp-btn active" data-preset="default" title="Default Dark Glass Mesh">
+                  <span class="preset-wp-thumb preset-default"></span>
+                  <span class="preset-wp-name">Dark Mesh</span>
+                </button>
+                <button type="button" class="preset-wp-btn" data-preset="aurora" title="Aurora Borealis">
+                  <span class="preset-wp-thumb preset-aurora"></span>
+                  <span class="preset-wp-name">Aurora</span>
+                </button>
+                <button type="button" class="preset-wp-btn" data-preset="cyber" title="Cyber Indigo">
+                  <span class="preset-wp-thumb preset-cyber"></span>
+                  <span class="preset-wp-name">Cyber</span>
+                </button>
+                <button type="button" class="preset-wp-btn" data-preset="sunset" title="Sunset Glow">
+                  <span class="preset-wp-thumb preset-sunset"></span>
+                  <span class="preset-wp-name">Sunset</span>
+                </button>
+              </div>
+
+              <div class="wallpaper-sliders">
+                <div class="slider-row">
+                  <div class="slider-label-row">
+                    <span>Frosted Glass Blur:</span>
+                    <strong id="blurVal">12px</strong>
+                  </div>
+                  <input type="range" id="wallpaperBlurInput" min="0" max="25" value="12" step="1" class="range-slider">
+                </div>
+                <div class="slider-row">
+                  <div class="slider-label-row">
+                    <span>Dark Glass Tint:</span>
+                    <strong id="dimVal">60%</strong>
+                  </div>
+                  <input type="range" id="wallpaperDimInput" min="20" max="90" value="60" step="5" class="range-slider">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 2: Choose Text Color -->
+        <div class="settings-section">
+          <div class="settings-section-title">
+            <svg class="settings-icon" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M4 2a2 2 0 00-2 2v11a3 3 0 106 0V4a2 2 0 00-2-2H4zm1 14a1 1 0 100-2 1 1 0 000 2zm5-1.757l4.9-4.9a2 2 0 000-2.828L13.485 5.1a2 2 0 00-2.828 0L10 5.757v8.486zM16 18H9.071l6-6H16a2 2 0 012 2v2a2 2 0 01-2 2z" clip-rule="evenodd" />
+            </svg>
+            <span>Text & Font Color</span>
+          </div>
+
+          <div class="color-picker-group">
+            <div class="color-presets-row">
+              <button type="button" class="color-swatch-btn active" data-color="#f1f5f9" style="background: #f1f5f9;" title="Snow White (Default)"></button>
+              <button type="button" class="color-swatch-btn" data-color="#ffffff" style="background: #ffffff;" title="Crisp Pure White"></button>
+              <button type="button" class="color-swatch-btn" data-color="#38bdf8" style="background: #38bdf8;" title="Cyber Cyan"></button>
+              <button type="button" class="color-swatch-btn" data-color="#34d399" style="background: #34d399;" title="Emerald Mint"></button>
+              <button type="button" class="color-swatch-btn" data-color="#c084fc" style="background: #c084fc;" title="Lavender"></button>
+              <button type="button" class="color-swatch-btn" data-color="#fbbf24" style="background: #fbbf24;" title="Warm Amber"></button>
+              <button type="button" class="color-swatch-btn" data-color="#fb7185" style="background: #fb7185;" title="Coral Rose"></button>
+            </div>
+
+            <div class="custom-color-row">
+              <label for="textColorPicker" class="custom-color-label">
+                <input type="color" id="textColorPicker" value="#f1f5f9" class="color-input">
+                <span>Custom Color: <strong id="customColorHex">#f1f5f9</strong></span>
+              </label>
+              <button type="button" class="btn btn-ghost btn-sm" id="resetTextColorBtn">Reset Text Color</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 3: Time Format -->
+        <div class="settings-section">
+          <div class="settings-section-title">
+            <svg class="settings-icon" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+            </svg>
+            <span>Time & Clock Format</span>
+          </div>
+
+          <div class="time-format-grid">
+            <label class="time-format-card">
+              <input type="radio" name="timeFormat" value="12h-sec" class="time-format-radio">
+              <div class="time-format-card-content">
+                <span class="time-preview" id="preview12hSec">04:58:30 PM</span>
+                <span class="time-format-label">12-Hour with Seconds</span>
+              </div>
+            </label>
+
+            <label class="time-format-card">
+              <input type="radio" name="timeFormat" value="12h" class="time-format-radio">
+              <div class="time-format-card-content">
+                <span class="time-preview" id="preview12h">04:58 PM</span>
+                <span class="time-format-label">12-Hour</span>
+              </div>
+            </label>
+
+            <label class="time-format-card">
+              <input type="radio" name="timeFormat" value="24h-sec" class="time-format-radio">
+              <div class="time-format-card-content">
+                <span class="time-preview" id="preview24hSec">16:58:30</span>
+                <span class="time-format-label">24-Hour with Seconds</span>
+              </div>
+            </label>
+
+            <label class="time-format-card">
+              <input type="radio" name="timeFormat" value="24h" class="time-format-radio">
+              <div class="time-format-card-content">
+                <span class="time-preview" id="preview24h">16:58</span>
+                <span class="time-format-label">24-Hour</span>
+              </div>
+            </label>
+          </div>
+          <p class="settings-hint">Tip: You can also click the clock directly on the board to cycle formats!</p>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="saveSettingsBtn">Done</button>
+      </div>
     </div>
   </div>
 

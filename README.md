@@ -6,6 +6,19 @@ A clean, minimalist dark-themed to-do list and Kanban board task manager that tr
 
 ## ✨ Features & Capabilities
 
+### 🎨 Authentic Glassmorphism Theme & Aesthetic Personalization
+- **Modern Glassmorphic Surfaces:** All Kanban columns, task cards, quick links dock, and dialogs feature deep backdrop blur (`backdrop-filter: blur(...)`), translucent surfaces, glowing neon borders, and subtle inner reflections.
+- **Upload Custom Wallpaper:** Upload your own personal desktop wallpaper (`.png`, `.jpg`, `.webp`) with automatic client-side canvas compression for instant loading and safe local storage.
+- **Curated Wallpaper Presets:** Switch anytime between built-in gradients: **Dark Mesh**, **Aurora Borealis**, **Cyber Indigo**, and **Sunset Glow**.
+- **Adjustable Frosted Blur & Dark Tint:** Fine-tune background frosted blur (`0px` to `25px`) and dark glass tint (`20%` to `90%`) via interactive sliders to guarantee cards and text remain razor-sharp and legible.
+- **Custom Text & Font Color:** Pick your ideal accent text color from 7 curated swatches (Snow White, Crisp White, Cyber Cyan, Emerald Mint, Lavender, Amber, Coral Rose) or select any hex color using the native color picker.
+- **Flexible Time & Clock Formats:** Choose your preferred clock style:
+  - `12h-sec`: `04:58:30 PM` (12-hour with live seconds)
+  - `12h`: `04:58 PM` (clean 12-hour)
+  - `24h-sec`: `16:58:30` (military / 24-hour with live seconds)
+  - `24h`: `16:58` (clean 24-hour)
+- **Click-to-Cycle Clock:** Click directly on the ambient clock on the board anytime to instantly cycle through time formats without opening settings!
+
 ### 📌 Kanban View & Focused Single Tabs
 - **3-Column Visual Board:** Seamlessly manage workflow across **To Do**, **In Progress**, and **Done**.
 - **Single-Tab Focus Mode:** Switch between the full Kanban board view or dedicated single-column views with live task counts.
@@ -80,6 +93,7 @@ A clean, minimalist dark-themed to-do list and Kanban board task manager that tr
 | `N` | Open **New Task** modal |
 | `B` | Open **Bulk Add** modal |
 | `R` | Open **Daily Report** modal |
+| `S` | Open **Theme, Wallpaper & Clock Settings** modal |
 | `L` | Toggle **Quick Links** right sidebar |
 | `Esc` | Close active modal / clear search |
 | `Ctrl + Enter` / `Cmd + Enter` | Save and submit active modal |
