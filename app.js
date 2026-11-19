@@ -1141,12 +1141,16 @@
 
   function getDailyReportData() {
     const now = new Date();
-    const dateFormatted = now.toLocaleDateString(undefined, {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+    const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const months = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    const weekday = weekdays[now.getDay()];
+    const day = now.getDate();
+    const month = months[now.getMonth()];
+    const year = now.getFullYear();
+    const dateFormatted = `${weekday}, ${day} ${month} ${year}`;
 
     const total = state.tasks.length;
     const doneTasks = state.tasks.filter((t) => t.status === 'done');
@@ -1164,60 +1168,85 @@
     };
   }
 
-  function generateMarkdownReport(data) {
-    let md = `# 📋 Daily Status Report — ${data.dateFormatted}\n\n`;
-    md += `**Summary:** ${data.doneTasks.length}/${data.total} tasks completed (${data.pct}%) | ${data.inProgressTasks.length} in progress | ${data.todoTasks.length} to do\n\n`;
+  function formatReportTask(t) {
+    const title = (t.title || '').trim();
+    const notes = (t.notes || '').trim();
+    let boldPart = '';
+    let descPart = '';
 
-    // Done Section
-    md += `### ✅ Done (${data.doneTasks.length})\n`;
+    // Check if title has a colon separator (e.g. "HPS-366: Code and tests..." or "HPS-262 — PR 3 (Video): Completed...")
+    const colonIdx = title.indexOf(':');
+    if (colonIdx > 0 && colonIdx < 80) {
+      boldPart = title.substring(0, colonIdx).trim();
+      descPart = title.substring(colonIdx + 1).trim();
+      if (notes) {
+        descPart += (descPart ? (descPart.endsWith('.') ? ' ' : '. ') : '') + notes;
+      }
+    } else if (notes) {
+      // Bold title, use notes as description
+      boldPart = title;
+      descPart = notes;
+    } else {
+      // No colon, no notes: check if title has ticket prefix with dash/em-dash like "HPS-319 (Refine) - Description"
+      const dashMatch = title.match(/^([A-Za-z0-9_#\-\s&,()]+?\b\d+)\s*[-—]\s*(.+)$/);
+      if (dashMatch) {
+        boldPart = dashMatch[1].trim();
+        descPart = dashMatch[2].trim();
+      } else {
+        boldPart = title;
+        descPart = '';
+      }
+    }
+
+    let line = '';
+    if (boldPart && descPart) {
+      line = `• **${boldPart}**: ${descPart}`;
+    } else if (boldPart) {
+      line = `• **${boldPart}**`;
+    } else if (descPart) {
+      line = `• ${descPart}`;
+    }
+
+    if (t.prLink && t.prLink.trim()) {
+      line += `\n  PR: ${t.prLink.trim()}`;
+    }
+
+    return line;
+  }
+
+  function generateMarkdownReport(data) {
+    let md = `📋 Daily Status Report — ${data.dateFormatted}\n`;
+    md += `Summary: ${data.doneTasks.length}/${data.total} tasks completed (${data.pct}%) | ${data.inProgressTasks.length} in progress | ${data.todoTasks.length} pending\n\n`;
+
+    // Completed Section
+    md += `✅ Completed (${data.doneTasks.length})\n\n`;
     if (data.doneTasks.length === 0) {
-      md += `_No tasks completed yet_\n`;
+      md += `• _No tasks completed yet_\n`;
     } else {
       data.doneTasks.forEach((t) => {
-        const prio = PRIORITIES[t.priority] ? PRIORITIES[t.priority].label : 'Medium';
-        let line = `- [x] ${t.title} [${prio}]`;
-        if (t.prLink && t.prLink.trim()) {
-          line += ` — PR: ${t.prLink.trim()}`;
-        }
-        md += `${line}\n`;
-        if (t.notes && t.notes.trim()) {
-          md += `  > ${t.notes.trim().replace(/\n/g, ' ')}\n`;
-        }
+        md += `${formatReportTask(t)}\n`;
       });
     }
     md += `\n`;
 
     // In Progress Section
-    md += `### ⏳ In Progress (${data.inProgressTasks.length})\n`;
+    md += `⏳ In Progress (${data.inProgressTasks.length})\n\n`;
     if (data.inProgressTasks.length === 0) {
-      md += `_No tasks currently in progress_\n`;
+      md += `• _No tasks in progress_\n`;
     } else {
       data.inProgressTasks.forEach((t) => {
-        const prio = PRIORITIES[t.priority] ? PRIORITIES[t.priority].label : 'Medium';
-        let line = `- [/] ${t.title} [${prio}]`;
-        if (t.prLink && t.prLink.trim()) {
-          line += ` — PR: ${t.prLink.trim()}`;
-        }
-        md += `${line}\n`;
-        if (t.notes && t.notes.trim()) {
-          md += `  > ${t.notes.trim().replace(/\n/g, ' ')}\n`;
-        }
+        md += `${formatReportTask(t)}\n`;
       });
     }
     md += `\n`;
 
     // To Do Section
-    md += `### 📝 To Do (${data.todoTasks.length})\n`;
+    md += `📑 To Do (${data.todoTasks.length})\n\n`;
     if (data.todoTasks.length === 0) {
-      md += `_No pending tasks_\n`;
+      md += `• _No pending tasks_\n`;
     } else {
       data.todoTasks.forEach((t) => {
-        const prio = PRIORITIES[t.priority] ? PRIORITIES[t.priority].label : 'Medium';
-        let line = `- [ ] ${t.title} [${prio}]`;
-        md += `${line}\n`;
-        if (t.notes && t.notes.trim()) {
-          md += `  > ${t.notes.trim().replace(/\n/g, ' ')}\n`;
-        }
+        md += `${formatReportTask(t)}\n`;
       });
     }
 
@@ -1236,7 +1265,7 @@
       </div>
       <div class="report-stat-pill">
         <span class="report-stat-num stat-done">${data.doneTasks.length}</span>
-        <span class="report-stat-lbl">Done (${data.pct}%)</span>
+        <span class="report-stat-lbl">Completed (${data.pct}%)</span>
       </div>
       <div class="report-stat-pill">
         <span class="report-stat-num stat-progress">${data.inProgressTasks.length}</span>
@@ -1244,20 +1273,20 @@
       </div>
       <div class="report-stat-pill">
         <span class="report-stat-num stat-todo">${data.todoTasks.length}</span>
-        <span class="report-stat-lbl">To Do</span>
+        <span class="report-stat-lbl">Pending</span>
       </div>
     `;
 
     // Render formatted sections
     let html = '';
 
-    // Done Section
+    // Completed Section
     html += `
       <div class="report-section">
         <div class="report-section-header">
           <div class="report-section-title-group">
             <span class="status-dot dot-done"></span>
-            <span class="report-section-title">Done</span>
+            <span class="report-section-title">Completed</span>
           </div>
           <span class="report-section-badge">${data.doneTasks.length}</span>
         </div>
